@@ -7,9 +7,9 @@ void setup() {
 }
 
 void draw_foot(float x, float y, float t, boolean other_foot) {
-  
+  float angle = t * -TWO_PI / 0.4 + (other_foot ? PI : 0);
   fill(255, 128, 128);
-  ellipse(x, y, 24, 16);
+  ellipse(x+8*cos(angle), y+4*sin(angle), 24, 16);
 }
 
 void draw_body(float x, float y, float t) {
@@ -27,10 +27,10 @@ void draw_eyes(float x, float y, float t) {
 }
 
 void draw_player(float x, float y, float t) {
-  draw_foot(x-16, y+28, t, false);
+  draw_foot(x-10, y+28, t, false);
   draw_body(x, y, t);
   draw_eyes(x-8, y, t);
-  draw_foot(x+8, y+30, t, true);
+  draw_foot(x+10, y+30, t, true);
 }
 
 void draw() {
