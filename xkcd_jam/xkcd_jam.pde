@@ -9,18 +9,18 @@ void load_level(int level) {
   if (level == 1) {
     global_player = new Player(320, 180);
     Planet planet = new Planet(320, 180, 100, "green-blue-planet.png", 0.1);
-  
+
     global_player.y -= planet.r;
     global_player.y -= global_player.r;
     global_player.attach();
-    
+
     global_planets = new Planet[1];
     global_planets[0] = planet;
   } else if (level == 2) {
     global_player = new Player(320, 180);
     Planet left_planet = new Planet(215, 180, 50, "beach-planet.png", 0.1);
     Planet right_planet = new Planet(425, 180, 50, "purple-planet.png", 0.1);
-    
+
     global_planets = new Planet[2];
     global_planets[0] = left_planet;
     global_planets[1] = right_planet;
@@ -30,7 +30,7 @@ void load_level(int level) {
 void setup() {
   planet_graphics = createGraphics(186, 186);
   planet_shading = loadImage("planet-shading.png");
-  
+
   load_level(2);
 
   size(640, 360);
@@ -57,14 +57,14 @@ float lerpAngle(float theta1, float theta2, float fraction) {
   } else {
     theta2 = theta1 + dtheta - TAU;
   }
-  
+
   return lerp(theta1, theta2, fraction);
 }
 
 Planet find_closest_planet(float x, float y) {
   Planet closest_planet = null;
   float closest_distance_squared = 0.0; // only valid when closest_planet != null
-  for(int i=0; i<global_planets.length; ++i) {
+  for (int i=0; i<global_planets.length; ++i) {
     Planet planet = global_planets[i];
     float distance_squared = sq(x - planet.x) + sq(y - planet.y);
     if (closest_planet == null || distance_squared < closest_distance_squared) {
@@ -86,8 +86,8 @@ class Eyes {
 
     float doffset = dt/0.1;
     target_offset = (dir ==  1) ?  1.0
-                  : (dir == -1) ? -1.0
-                  : target_offset;
+      : (dir == -1) ? -1.0
+      : target_offset;
     if (abs(offset - target_offset) < dt) {
       offset = target_offset;
     } else if (target_offset > offset) {
@@ -120,8 +120,8 @@ class Foot {
 
   void update(float dcycle, int dir) {
     float target = (dir ==  1) ? (cycle + 1)
-                 : (dir == -1) ? (cycle - 1)
-                 : round(cycle*2.0)/2.0;
+      : (dir == -1) ? (cycle - 1)
+      : round(cycle*2.0)/2.0;
     if (abs(cycle - target) < dcycle) {
       cycle = target;
     } else if (target > cycle) {
@@ -145,6 +145,10 @@ class Player {
   float target_theta = 0.0; // radians
   float r = 16; // pixels
   float walking_speed = 200; // pixels/second
+  float last_x;
+  float last_y;
+  float vx = 0.0; // pixels/second, only valid when attached_planed == null
+  float vy = 0.0; // pixels/second, only valid when attached_planed == null
   Eyes eyes = new Eyes();
   Foot back_foot = new Foot(0.0);
   Foot front_foot = new Foot(0.5);
@@ -152,41 +156,52 @@ class Player {
   float attached_theta; // radians, only valid when attached_planet != null
 
   Player(float x_, float y_) {
-    x = x_;
-    y = y_;
+    last_x = x = x_;
+    last_y = y = y_;
   }
-  
+
   void attach() {
-    Planet planet = find_closest_planet(x, y);
-    attached_planet = planet;
-    attached_theta = atan2(y-planet.y, x-planet.x) - attached_planet.theta;
+    if (attached_planet == null) {
+      Planet planet = find_closest_planet(x, y);
+      attached_planet = planet;
+      attached_theta = atan2(y-planet.y, x-planet.x) - attached_planet.theta;
+    }
   }
-  
+
   void detach() {
-    attached_planet = null;
+    if (attached_planet != null) {
+      attached_planet = null;
+      vx = x - last_x;
+      vy = y - last_y;
+    }
   }
 
   void update(float dt, int dir) {
+    if (attached_planet == null) {
+      dir = 0;
+    }
+
     eyes.update(dt, dir);
 
     float dcycle = dt / 0.4;
     back_foot.update(dcycle, dir);
     front_foot.update(dcycle, dir);
-    
-    float dx = dt * walking_speed;
+
+    last_x = x;
+    last_y = y;
     if (attached_planet == null) {
-      
-      x += dir*dx*cos(theta);
-      y += dir*dx*sin(theta);
-      
+      x += vx;
+      y += vy;
+
       Planet closest_planet = find_closest_planet(x, y);
       target_theta = atan2(y-closest_planet.y, x-closest_planet.x)+TAU/4;
       theta = lerpAngle(theta, target_theta, 0.1);
     } else {
       // project the walking speed onto the planet, in radians
+      float dx = dt * walking_speed;
       float dtheta = atan2(dx, attached_planet.r);
       attached_theta += dir*dtheta;
-      
+
       float r_ = attached_planet.r + r;
       float theta_ = attached_planet.theta + attached_theta;
       x = attached_planet.x + r_ * cos(theta_);
@@ -210,15 +225,15 @@ class Player {
     translate(0, 28);
     back_foot.draw();
     popMatrix();
-    
+
     draw_body();
     eyes.draw();
-    
+
     pushMatrix();
     translate(0, 30);
     front_foot.draw();
     popMatrix();
-    
+
     popMatrix();
   }
 }
@@ -230,7 +245,7 @@ class Planet {
   PImage img;
   float speed; // turns/second
   float theta = 0.0; // radians
-  
+
   Planet(float x_, float y_, float r_, String filename, float speed_) {
     x = x_;
     y = y_;
@@ -238,11 +253,11 @@ class Planet {
     img = loadImage(filename);
     speed = speed_;
   }
-  
+
   void update(float dt) {
     theta += speed * dt * TAU;
   }
-  
+
   void draw() {
     planet_graphics.beginDraw();
     planet_graphics.background(0, 0, 0, 0);
@@ -253,7 +268,7 @@ class Planet {
     planet_graphics.popMatrix();
     planet_graphics.blend(planet_shading, 0, 0, 186, 186, 0, 0, 186, 186, OVERLAY);
     planet_graphics.endDraw();
-    
+
     pushMatrix();
     translate(x, y);
     image(planet_graphics, 0, 0, 2*r, 2*r);
@@ -264,14 +279,14 @@ class Planet {
 void draw() {
   int dir = (left_pressed ? -1 : 0) + (right_pressed ? 1 : 0); // -1, 0, or 1
   float dt = 1.0/60; // seconds (assumes 60fps)
-  for(int i=0; i<global_planets.length; ++i) {
+  for (int i=0; i<global_planets.length; ++i) {
     Planet planet = global_planets[i];
     planet.update(dt);
   }
   global_player.update(dt, dir);
 
   background(0);
-  for(int i=0; i<global_planets.length; ++i) {
+  for (int i=0; i<global_planets.length; ++i) {
     Planet planet = global_planets[i];
     planet.draw();
   }
