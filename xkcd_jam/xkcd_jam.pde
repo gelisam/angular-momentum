@@ -90,6 +90,7 @@ class Foot {
 class Player {
   float x; // pixels
   float y; // pixels
+  float theta = 0.0; // radians
   float r = 16; // pixels
   float walking_speed = 200; // pixels/second
   Eyes eyes = new Eyes();
@@ -128,9 +129,10 @@ class Player {
       attached_theta += dir*dtheta;
       
       float r_ = attached_planet.r + r;
-      float theta = attached_planet.theta + attached_theta;
-      x = attached_planet.x + r_ * cos(theta);
-      y = attached_planet.y + r_ * sin(theta);
+      float theta_ = attached_planet.theta + attached_theta;
+      x = attached_planet.x + r_ * cos(theta_);
+      y = attached_planet.y + r_ * sin(theta_);
+      theta = theta_;
     }
   }
 
@@ -143,6 +145,7 @@ class Player {
     pushMatrix();
     translate(x, y);
     scale(r/32);
+    rotate(theta+TAU/4);
 
     pushMatrix();
     translate(0, 28);
