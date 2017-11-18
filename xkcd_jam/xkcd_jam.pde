@@ -149,7 +149,8 @@ class Planet {
     pushMatrix();
     translate(x, y);
     rotate(angle);
-    image(img, -r, -r);
+    imageMode(CENTER);
+    image(img, 0, 0);
     popMatrix();
   }
 }
