@@ -1,16 +1,17 @@
 boolean left_pressed = false;
 boolean right_pressed = false;
-Player global_player;
-Planet[] global_planets;
 PGraphics planet_graphics;
 PImage planet_shading;
+Player global_player;
+Planet[] global_planets;
 
 void setup() {
-  global_player = new Player(320, 180);
-  Planet planet = new Planet(320, 180, 100, "green-blue-planet.png", 0.1);
   planet_graphics = createGraphics(186, 186);
   planet_shading = loadImage("planet-shading.png");
   
+  global_player = new Player(320, 180);
+  Planet planet = new Planet(320, 180, 100, "green-blue-planet.png", 0.1);
+
   global_player.y -= planet.r;
   global_player.y -= global_player.r;
   global_player.attach(planet);
