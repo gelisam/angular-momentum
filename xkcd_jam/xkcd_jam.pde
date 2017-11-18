@@ -10,25 +10,22 @@ PImage helmet_image;
 Player global_player;
 Planet[] global_planets;
 
+void start_on(Planet planet) {
+  global_player = new Player(planet.x, planet.y - planet.r);
+  global_player.attach(planet);
+}
+
 void load_level(int level) {
   if (level == 1) {
-    global_player = new Player(320, 180);
     Planet planet = new Planet(320, 180, 100, "green-blue-planet.png", 0.1);
-
-    global_player.y -= planet.r;
-    global_player.y -= global_player.r;
-    global_player.attach(planet);
+    start_on(planet);
 
     global_planets = new Planet[1];
     global_planets[0] = planet;
   } else if (level == 2) {
-    global_player = new Player(215, 180);
     Planet left_planet = new Planet(215, 180, 50, "beach-planet.png", 0.1);
     Planet right_planet = new Planet(425, 180, 50, "purple-planet.png", 0.1);
-
-    global_player.y -= left_planet.r;
-    global_player.y -= global_player.r;
-    global_player.attach(left_planet);
+    start_on(left_planet);
 
     global_planets = new Planet[2];
     global_planets[0] = left_planet;
