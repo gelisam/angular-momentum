@@ -50,10 +50,11 @@ class Player {
   Foot back_foot = new Foot(false);
   Foot front_foot = new Foot(true);
   
-  void update(float dt) {
+  void update(float dt, int dir) {
     eyes.update(dt);
-    back_foot.update(dt);
-    front_foot.update(dt);
+    
+    back_foot.update(dt*dir);
+    front_foot.update(dt*dir);
   }
   
   void draw_body(float x, float y) {
@@ -70,9 +71,9 @@ class Player {
 }
 
 void draw() {
-  float dir = (left_pressed ? 1.0 : 0.0) + (right_pressed ? -1.0 : 0.0);
-  float dt = dir/60;
-  global_player.update(dt);
+  int dir = (left_pressed ? 1 : 0) + (right_pressed ? -1 : 0);
+  float dt = 1.0/60;
+  global_player.update(dt, dir);
   
   background(0);
   global_player.draw(100, 100);
