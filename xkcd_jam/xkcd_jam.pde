@@ -165,6 +165,7 @@ class Player {
   float y; // pixels
   float theta = 0.0; // radians
   float target_theta = 0.0; // radians
+  boolean wearing_helmet = false;
   float r = 16; // pixels
   float walking_speed = 200; // pixels/second
   float last_x;
@@ -197,10 +198,12 @@ class Player {
     }
   }
 
-  void update(float dt, int dir, boolean floating) {
-    if (floating) {
+  void update(float dt, int dir, boolean holding_up) {
+    if (holding_up) {
+      wearing_helmet = true;
       detach();
     } else {
+      wearing_helmet = false;
       Planet planet = find_colliding_planet(x, y, r);
       if (planet != null) {
         attach(planet);
@@ -264,7 +267,7 @@ class Player {
     front_foot.draw();
     popMatrix();
 
-    if (attached_planet == null) {
+    if (wearing_helmet) {
       image(helmet_image, 0, 0, 92, 92);
     }
 
