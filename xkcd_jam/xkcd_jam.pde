@@ -92,7 +92,7 @@ class Player {
   Eyes eyes = new Eyes();
   Foot back_foot = new Foot(0.0);
   Foot front_foot = new Foot(0.5);
-  Planet attached_planet = null;
+  Planet attached_planet = null; // may be null!
   float attached_theta; // radians, only valid when attached_planet != null
 
   Player(float x_, float y_) {
