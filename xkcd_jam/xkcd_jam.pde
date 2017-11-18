@@ -5,19 +5,25 @@ PImage planet_shading;
 Player global_player;
 Planet[] global_planets;
 
+void loadLevel(int level) {
+  if (level == 1) {
+    global_player = new Player(320, 180);
+    Planet planet = new Planet(320, 180, 100, "green-blue-planet.png", 0.1);
+  
+    global_player.y -= planet.r;
+    global_player.y -= global_player.r;
+    global_player.attach(planet);
+    
+    global_planets = new Planet[1];
+    global_planets[0] = planet;
+  }
+}
+
 void setup() {
   planet_graphics = createGraphics(186, 186);
   planet_shading = loadImage("planet-shading.png");
   
-  global_player = new Player(320, 180);
-  Planet planet = new Planet(320, 180, 100, "green-blue-planet.png", 0.1);
-
-  global_player.y -= planet.r;
-  global_player.y -= global_player.r;
-  global_player.attach(planet);
-  
-  global_planets = new Planet[1];
-  global_planets[0] = planet;
+  loadLevel(1);
 
   size(640, 360);
   noStroke();
