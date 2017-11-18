@@ -9,17 +9,20 @@ void setup() {
 }
 
 
-void draw_body(float x, float y, float t) {
-  fill(128, 128, 255);
-  ellipse(x, y, 64, 64);
-}
-
-void draw_eyes(float x, float y, float t) {
-  boolean blinking = (t % 3 >= 2.8);
-  if (!blinking) {
-    fill(255, 255, 255);
-    ellipse(x-8, y, 8, 16);
-    ellipse(x+8, y, 8, 16);
+class Eyes {
+  float t = 0.0;
+  
+  void update(float dt) {
+    t += dt;
+  }
+  
+  void draw(float x, float y) {
+    boolean blinking = (t % 3 >= 2.8);
+    if (!blinking) {
+      fill(255, 255, 255);
+      ellipse(x-8, y, 8, 16);
+      ellipse(x+8, y, 8, 16);
+    }
   }
 }
 
@@ -43,21 +46,25 @@ class Foot {
 }
 
 class Player {
-  float t = 0.0;
+  Eyes eyes = new Eyes();
   Foot back_foot = new Foot(false);
   Foot front_foot = new Foot(true);
   
   void update(float dt) {
-    t += dt;
-    
+    eyes.update(dt);
     back_foot.update(dt);
     front_foot.update(dt);
   }
   
+  void draw_body(float x, float y) {
+    fill(128, 128, 255);
+    ellipse(x, y, 64, 64);
+  }
+  
   void draw(float x, float y) {
     back_foot.draw(x-10, y+28);
-    draw_body(x, y, t);
-    draw_eyes(x-8, y, t);
+    draw_body(x, y);
+    eyes.draw(x-8, y);
     front_foot.draw(x+10, y+30);
   }
 }
