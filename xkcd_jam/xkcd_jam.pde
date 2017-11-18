@@ -1,5 +1,6 @@
 float gravity_constant = 0.001;
 float min_gravity = 0.1; // otherwise reaching escape velocity means game over
+float helmet_duration = 1.0;
 
 boolean left_pressed = false;
 boolean right_pressed = false;
@@ -189,6 +190,7 @@ class Player {
   boolean wearing_helmet = false;
   float r = 16; // pixels
   float walking_speed = 20; // pixels/second
+  float helmet_power = 0.0; // seconds
   float last_x;
   float last_y;
   PVector velocity = new PVector(); // pixels/second, only valid when attached_planed == null
@@ -219,13 +221,15 @@ class Player {
   }
 
   void update(float dt, int dir, boolean holding_up) {
-    if (holding_up) {
+    if (holding_up && helmet_power > 0.0) {
+      helmet_power -= dt;
       wearing_helmet = true;
       detach();
     } else {
       wearing_helmet = false;
       Planet planet = find_colliding_planet(x, y, r);
       if (planet != null) {
+        helmet_power = helmet_duration;
         attach(planet);
       }
     }
@@ -272,6 +276,22 @@ class Player {
     ellipse(0, 0, 64, 64);
   }
 
+  void draw_helmet_power() {
+    fill(112, 112, 112);
+    rect(510, 330, 120, 20, 0, 7, 7, 0);
+
+    if (helmet_power > 0.0) {
+      if (helmet_power > 0.5) {
+        fill(176, 243, 66);
+      } else {
+        fill(243, 66, 66);
+      }
+      rect(512, 332, helmet_power*116/helmet_duration, 16, 0, 7, 7, 0);
+    }
+
+    image(helmet_image, 500, 338, 30, 30);
+  }
+
   void draw() {
     pushMatrix();
     translate(x, y);
@@ -292,10 +312,16 @@ class Player {
     popMatrix();
 
     if (wearing_helmet) {
-      image(helmet_image, 0, 0, 92, 92);
+      boolean blinking = (helmet_power > 0.5) ? false
+        : (helmet_power % 0.2 > 0.1);
+      if (!blinking) {
+        image(helmet_image, 0, 0, 92, 92);
+      }
     }
 
     popMatrix();
+
+    draw_helmet_power();
   }
 }
 
