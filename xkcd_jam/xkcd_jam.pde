@@ -188,7 +188,7 @@ class Player {
   float target_theta = 0.0; // radians
   boolean wearing_helmet = false;
   float r = 16; // pixels
-  float walking_speed = 200; // pixels/second
+  float walking_speed = 20; // pixels/second
   float last_x;
   float last_y;
   PVector velocity = new PVector(); // pixels/second, only valid when attached_planed == null
