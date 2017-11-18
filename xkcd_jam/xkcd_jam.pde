@@ -120,6 +120,7 @@ class Player {
   float x; // pixels
   float y; // pixels
   float theta = 0.0; // radians
+  float target_theta = 0.0; // radians
   float r = 16; // pixels
   float walking_speed = 200; // pixels/second
   Eyes eyes = new Eyes();
@@ -157,7 +158,8 @@ class Player {
       y += dir*dx*sin(theta);
       
       Planet closest_planet = find_closest_planet(x, y);
-      theta = atan2(y-closest_planet.y, x-closest_planet.x)+TAU/4;
+      target_theta = atan2(y-closest_planet.y, x-closest_planet.x)+TAU/4;
+      theta = lerp(theta, target_theta, 0.1);
     } else {
       // project the walking speed onto the planet, in radians
       float dtheta = atan2(dx, attached_planet.r);
