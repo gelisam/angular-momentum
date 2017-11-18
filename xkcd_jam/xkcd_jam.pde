@@ -1,6 +1,6 @@
 boolean left_pressed = false;
 boolean right_pressed = false;
-Player global_player = new Player();
+Player global_player = new Player(320, 300);
 
 void setup() {
   size(640, 360);
@@ -11,8 +11,8 @@ void setup() {
 
 class Eyes {
   float t = 0.0;
-  float offset = -1.0;
-  float target = -1.0;
+  float offset = 1.0;
+  float target = 1.0;
 
   void update(float dt, int dir) {
     t += dt;
@@ -73,9 +73,16 @@ class Foot {
 }
 
 class Player {
+  float x;
+  float y;
   Eyes eyes = new Eyes();
   Foot back_foot = new Foot(0.0);
   Foot front_foot = new Foot(0.5);
+
+  Player(float x_, float y_) {
+    x = x_;
+    y = y_;
+  }
 
   void update(float dt, int dir) {
     eyes.update(dt, dir);
@@ -83,6 +90,9 @@ class Player {
     float dcycle = dt / 0.4;
     back_foot.update(dcycle, dir);
     front_foot.update(dcycle, dir);
+    
+    float dx = dt * 200;
+    x += dir*dx;
   }
 
   void draw_body() {
@@ -91,6 +101,9 @@ class Player {
   }
 
   void draw() {
+    pushMatrix();
+    translate(x, y);
+
     pushMatrix();
     translate(0, 28);
     back_foot.draw();
@@ -103,6 +116,8 @@ class Player {
     translate(0, 30);
     front_foot.draw();
     popMatrix();
+    
+    popMatrix();
   }
 }
 
@@ -112,10 +127,7 @@ void draw() {
   global_player.update(dt, dir);
 
   background(0);
-  pushMatrix();
-  translate(100, 100);
   global_player.draw();
-  popMatrix();
 }
 
 void keyPressed() {
