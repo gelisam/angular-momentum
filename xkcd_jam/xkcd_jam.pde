@@ -120,6 +120,10 @@ class Player {
     if (attached_planet == null) {
       x += dir*dx;
     } else {
+      // project the walking speed onto the planet, in radians
+      float dtheta = atan2(dx, attached_planet.r);
+      attached_theta += dir*dtheta;
+      
       float r_ = attached_planet.r + r;
       float theta = attached_planet.theta + attached_theta;
       x = attached_planet.x + r_ * cos(theta);
