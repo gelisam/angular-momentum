@@ -16,6 +16,14 @@ void loadLevel(int level) {
     
     global_planets = new Planet[1];
     global_planets[0] = planet;
+  } else if (level == 2) {
+    global_player = new Player(320, 180);
+    Planet left_planet = new Planet(215, 180, 50, "green-blue-planet.png", 0.1);
+    Planet right_planet = new Planet(425, 180, 50, "green-blue-planet.png", 0.1);
+    
+    global_planets = new Planet[2];
+    global_planets[0] = left_planet;
+    global_planets[1] = right_planet;
   }
 }
 
@@ -23,7 +31,7 @@ void setup() {
   planet_graphics = createGraphics(186, 186);
   planet_shading = loadImage("planet-shading.png");
   
-  loadLevel(1);
+  loadLevel(2);
 
   size(640, 360);
   noStroke();
