@@ -113,6 +113,7 @@ PVector gravity_force_at(float x, float y) {
     force.add(towards_planet);
   }
 
+  force.mult(gravity_constant);
   return force;
 }
 
@@ -188,8 +189,7 @@ class Player {
   float walking_speed = 200; // pixels/second
   float last_x;
   float last_y;
-  float vx = 0.0; // pixels/second, only valid when attached_planed == null
-  float vy = 0.0; // pixels/second, only valid when attached_planed == null
+  PVector velocity = new PVector(); // pixels/second, only valid when attached_planed == null
   Eyes eyes = new Eyes();
   Foot back_foot = new Foot(0.0);
   Foot front_foot = new Foot(0.5);
@@ -211,8 +211,8 @@ class Player {
   void detach() {
     if (attached_planet != null) {
       attached_planet = null;
-      vx = x - last_x;
-      vy = y - last_y;
+      velocity.x = x - last_x;
+      velocity.y = y - last_y;
     }
   }
 
@@ -242,13 +242,11 @@ class Player {
     last_y = y;
     if (attached_planet == null) {
       if (!wearing_helmet) {
-        PVector gravity_force = gravity_force_at(x, y);
-        vx += gravity_constant * gravity_force.x;
-        vy += gravity_constant * gravity_force.y;
+        velocity.add(gravity_force_at(x, y));
       }
 
-      x += vx;
-      y += vy;
+      x += velocity.x;
+      y += velocity.y;
 
       Planet closest_planet = find_closest_planet(x, y);
       target_theta = atan2(y-closest_planet.y, x-closest_planet.x)+TAU/4;
