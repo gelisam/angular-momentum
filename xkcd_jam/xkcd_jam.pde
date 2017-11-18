@@ -106,7 +106,7 @@ class Player {
   
   void attach(Planet planet) {
     attached_planet = planet;
-    attached_theta = atan2(y-planet.y, x-planet.x);
+    attached_theta = atan2(y-planet.y, x-planet.x) - attached_planet.theta;
   }
   
   void detach() {
