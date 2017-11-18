@@ -1,5 +1,6 @@
 boolean left_pressed = false;
 boolean right_pressed = false;
+boolean up_pressed = false;
 PGraphics planet_graphics;
 PImage planet_shading;
 PImage helmet_image;
@@ -178,7 +179,13 @@ class Player {
     }
   }
 
-  void update(float dt, int dir) {
+  void update(float dt, int dir, boolean floating) {
+    if (floating) {
+      detach();
+    } else {
+      attach();
+    }
+
     if (attached_planet == null) {
       dir = 0;
     }
@@ -235,7 +242,7 @@ class Player {
     translate(0, 30);
     front_foot.draw();
     popMatrix();
-    
+
     if (attached_planet == null) {
       image(helmet_image, 0, 0, 92, 92);
     }
@@ -289,7 +296,7 @@ void draw() {
     Planet planet = global_planets[i];
     planet.update(dt);
   }
-  global_player.update(dt, dir);
+  global_player.update(dt, dir, up_pressed);
 
   background(0);
   for (int i=0; i<global_planets.length; ++i) {
@@ -305,9 +312,7 @@ void keyPressed() {
   } else if (keyCode == RIGHT) {
     right_pressed = true;
   } else if (keyCode == UP) {
-    global_player.detach();
-  } else if (keyCode == DOWN) {
-    global_player.attach();
+    up_pressed = true;
   }
 }
 
@@ -316,5 +321,7 @@ void keyReleased() {
     left_pressed = false;
   } else if (keyCode == RIGHT) {
     right_pressed = false;
+  } else if (keyCode == UP) {
+    up_pressed = false;
   }
 }
