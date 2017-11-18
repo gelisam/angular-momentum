@@ -122,8 +122,22 @@ class Player {
     
     float dx = dt * walking_speed;
     if (attached_planet == null) {
+      
       x += dir*dx*cos(theta);
       y += dir*dx*sin(theta);
+      
+      Planet closest_planet = null;
+      float closest_distance_squared = 0.0; // only valid when closest_planet != null
+      for(int i=0; i<global_planets.length; ++i) {
+        Planet planet = global_planets[i];
+        float distance_squared = sq(x - planet.x) + sq(y - planet.y);
+        if (closest_planet == null || distance_squared < closest_distance_squared) {
+          closest_planet = planet;
+          closest_distance_squared = distance_squared;
+        }
+      }
+      
+      theta = atan2(y-closest_planet.y, x-closest_planet.x)+TAU/4;
     } else {
       // project the walking speed onto the planet, in radians
       float dtheta = atan2(dx, attached_planet.r);
