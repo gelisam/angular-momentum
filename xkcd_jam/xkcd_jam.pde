@@ -5,7 +5,7 @@ PImage planet_shading;
 Player global_player;
 Planet[] global_planets;
 
-void loadLevel(int level) {
+void load_level(int level) {
   if (level == 1) {
     global_player = new Player(320, 180);
     Planet planet = new Planet(320, 180, 100, "green-blue-planet.png", 0.1);
@@ -31,7 +31,7 @@ void setup() {
   planet_graphics = createGraphics(186, 186);
   planet_shading = loadImage("planet-shading.png");
   
-  loadLevel(2);
+  load_level(2);
 
   size(640, 360);
   noStroke();
@@ -39,7 +39,7 @@ void setup() {
   loop();
 }
 
-Planet findClosestPlanet(float x, float y) {
+Planet find_closest_planet(float x, float y) {
   Planet closest_planet = null;
   float closest_distance_squared = 0.0; // only valid when closest_planet != null
   for(int i=0; i<global_planets.length; ++i) {
@@ -134,7 +134,7 @@ class Player {
   }
   
   void attach() {
-    Planet planet = findClosestPlanet(x, y);
+    Planet planet = find_closest_planet(x, y);
     attached_planet = planet;
     attached_theta = atan2(y-planet.y, x-planet.x) - attached_planet.theta;
   }
@@ -156,7 +156,7 @@ class Player {
       x += dir*dx*cos(theta);
       y += dir*dx*sin(theta);
       
-      Planet closest_planet = findClosestPlanet(x, y);
+      Planet closest_planet = find_closest_planet(x, y);
       theta = atan2(y-closest_planet.y, x-closest_planet.x)+TAU/4;
     } else {
       // project the walking speed onto the planet, in radians
