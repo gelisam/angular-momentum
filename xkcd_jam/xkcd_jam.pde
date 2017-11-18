@@ -1,3 +1,5 @@
+float gravity_constant = 0.001;
+
 boolean left_pressed = false;
 boolean right_pressed = false;
 boolean up_pressed = false;
@@ -96,6 +98,22 @@ Planet find_colliding_planet(float x, float y, float r) {
   }
 
   return null;
+}
+
+// force on a 1 kilogram object, in newtons/kilogram
+PVector gravity_force_at(float x, float y) {
+  PVector force = new PVector();
+  for (int i=0; i<global_planets.length; ++i) {
+    Planet planet = global_planets[i];
+    PVector towards_planet = new PVector(planet.x - x, planet.y - y);
+    towards_planet.normalize();
+    float r_squared = sq(planet.x - x) + sq(planet.y - y);
+    float gravity = planet.mass / r_squared;
+    towards_planet.mult(gravity);
+    force.add(towards_planet);
+  }
+
+  return force;
 }
 
 class Eyes {
@@ -223,6 +241,12 @@ class Player {
     last_x = x;
     last_y = y;
     if (attached_planet == null) {
+      if (!wearing_helmet) {
+        PVector gravity_force = gravity_force_at(x, y);
+        vx += gravity_constant * gravity_force.x;
+        vy += gravity_constant * gravity_force.y;
+      }
+
       x += vx;
       y += vy;
 
@@ -279,6 +303,7 @@ class Planet {
   float x; // pixels
   float y; // pixels
   float r; // pixels
+  float mass; // kilograms?
   PImage img;
   float speed; // turns/second
   float theta = 0.0; // radians
@@ -287,6 +312,7 @@ class Planet {
     x = x_;
     y = y_;
     r = r_;
+    mass = 4*PI*r*r*r/3;
     img = loadImage(filename);
     speed = speed_;
   }
