@@ -8,11 +8,6 @@ void setup() {
   loop();
 }
 
-void draw_foot(float x, float y, float t, boolean other_foot) {
-  float angle = t * -TWO_PI / 0.4 + (other_foot ? PI : 0);
-  fill(255, 128, 128);
-  ellipse(x+8*cos(angle), y+4*sin(angle), 24, 16);
-}
 
 void draw_body(float x, float y, float t) {
   fill(128, 128, 255);
@@ -28,18 +23,42 @@ void draw_eyes(float x, float y, float t) {
   }
 }
 
-class Player {
+class Foot {
   float t = 0.0;
+  boolean other_foot;
+  
+  Foot(boolean other_foot_) {
+    other_foot = other_foot_;
+  }
   
   void update(float dt) {
     t += dt;
   }
   
   void draw(float x, float y) {
-    draw_foot(x-10, y+28, t, false);
+    float angle = t * -TWO_PI / 0.4 + (other_foot ? PI : 0);
+    fill(255, 128, 128);
+    ellipse(x+8*cos(angle), y+4*sin(angle), 24, 16);
+  }
+}
+
+class Player {
+  float t = 0.0;
+  Foot back_foot = new Foot(false);
+  Foot front_foot = new Foot(true);
+  
+  void update(float dt) {
+    t += dt;
+    
+    back_foot.update(dt);
+    front_foot.update(dt);
+  }
+  
+  void draw(float x, float y) {
+    back_foot.draw(x-10, y+28);
     draw_body(x, y, t);
     draw_eyes(x-8, y, t);
-    draw_foot(x+10, y+30, t, true);
+    front_foot.draw(x+10, y+30);
   }
 }
 
