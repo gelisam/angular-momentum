@@ -1,3 +1,5 @@
+boolean left_pressed = false;
+boolean right_pressed = false;
 float global_t = 0.0;
 
 void setup() {
@@ -35,6 +37,24 @@ void draw_player(float x, float y, float t) {
 
 void draw() {
   background(0);
-  draw_player(100, 100, global_t);  
-  global_t += 1.0/60;
+  draw_player(100, 100, global_t);
+  
+  float dt = (left_pressed ? 1.0 : 0.0) + (right_pressed ? -1.0 : 0.0);
+  global_t += dt/60;
+}
+
+void keyPressed() {
+  if (keyCode == LEFT) {
+    left_pressed = true;
+  } else if (keyCode == RIGHT) {
+    right_pressed = true;
+  }
+}
+
+void keyReleased() {
+  if (keyCode == LEFT) {
+    left_pressed = false;
+  } else if (keyCode == RIGHT) {
+    right_pressed = false;
+  }
 }
