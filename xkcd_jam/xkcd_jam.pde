@@ -224,6 +224,10 @@ void keyPressed() {
     left_pressed = true;
   } else if (keyCode == RIGHT) {
     right_pressed = true;
+  } else if (keyCode == UP) {
+    global_player.detach();
+  } else if (keyCode == DOWN) {
+    global_player.attach(global_planets[0]);
   }
 }
 
