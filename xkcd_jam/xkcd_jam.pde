@@ -2,15 +2,18 @@ boolean left_pressed = false;
 boolean right_pressed = false;
 Player global_player;
 Planet global_planet;
+PGraphics planet_graphics;
 PImage planet_shading;
 
 void setup() {
   global_player = new Player(320, 300);
-  global_planet = new Planet(93, 93, 93, "green-blue-planet.png", 1.0);
+  global_planet = new Planet(100, 100, 50, "green-blue-planet.png", 1.0);
+  planet_graphics = createGraphics(186, 186);
   planet_shading = loadImage("planet-shading.png");
 
   size(640, 360);
   noStroke();
+  imageMode(CENTER);
   loop();
 }
 
@@ -148,12 +151,19 @@ class Planet {
   }
   
   void draw() {
+    planet_graphics.beginDraw();
+    planet_graphics.background(0, 0, 0, 0);
+    planet_graphics.pushMatrix();
+    planet_graphics.translate(93, 93);
+    planet_graphics.rotate(angle);
+    planet_graphics.image(img, -93, -93, 186, 186);
+    planet_graphics.popMatrix();
+    planet_graphics.blend(planet_shading, 0, 0, 186, 186, 0, 0, 186, 186, OVERLAY);
+    planet_graphics.endDraw();
+    
     pushMatrix();
     translate(x, y);
-    rotate(angle);
-    imageMode(CENTER);
-    image(img, 0, 0, 186, 186);
-    blend(planet_shading, 0, 0, 186, 186, 0, 0, 186, 186, OVERLAY);
+    image(planet_graphics, 0, 0, 2*r, 2*r);
     popMatrix();
   }
 }
