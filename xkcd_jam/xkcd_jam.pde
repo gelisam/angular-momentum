@@ -151,6 +151,8 @@ class Planet {
     rotate(angle);
     imageMode(CENTER);
     image(img, 0, 0);
+    fill(255, 255, 255, 128);
+    ellipse(0, 0, r, r);
     popMatrix();
   }
 }
