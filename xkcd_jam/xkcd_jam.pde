@@ -1,4 +1,5 @@
 float gravity_constant = 0.001;
+float min_gravity = 0.1; // otherwise reaching escape velocity means game over
 
 boolean left_pressed = false;
 boolean right_pressed = false;
@@ -114,6 +115,10 @@ PVector gravity_force_at(float x, float y) {
   }
 
   force.mult(gravity_constant);
+  if (force.magSq() < sq(min_gravity)) {
+    force.normalize();
+    force.mult(min_gravity);
+  }
   return force;
 }
 
