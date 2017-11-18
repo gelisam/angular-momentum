@@ -2,6 +2,7 @@ boolean left_pressed = false;
 boolean right_pressed = false;
 PGraphics planet_graphics;
 PImage planet_shading;
+PImage helmet_image;
 Player global_player;
 Planet[] global_planets;
 
@@ -30,6 +31,7 @@ void load_level(int level) {
 void setup() {
   planet_graphics = createGraphics(186, 186);
   planet_shading = loadImage("planet-shading.png");
+  helmet_image = loadImage("helmet.png");
 
   load_level(2);
 
@@ -233,6 +235,10 @@ class Player {
     translate(0, 30);
     front_foot.draw();
     popMatrix();
+    
+    if (attached_planet == null) {
+      image(helmet_image, 0, 0, 92, 92);
+    }
 
     popMatrix();
   }
