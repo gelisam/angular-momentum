@@ -59,7 +59,6 @@ class Eyes {
 class Foot {
   float offset; // turns
   float cycle = 0.0; // turns
-  boolean other_foot;
 
   Foot(float offset_) {
     offset = offset_;
