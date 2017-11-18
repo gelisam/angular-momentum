@@ -122,7 +122,8 @@ class Player {
     
     float dx = dt * walking_speed;
     if (attached_planet == null) {
-      x += dir*dx;
+      x += dir*dx*cos(theta);
+      y += dir*dx*sin(theta);
     } else {
       // project the walking speed onto the planet, in radians
       float dtheta = atan2(dx, attached_planet.r);
@@ -132,7 +133,7 @@ class Player {
       float theta_ = attached_planet.theta + attached_theta;
       x = attached_planet.x + r_ * cos(theta_);
       y = attached_planet.y + r_ * sin(theta_);
-      theta = theta_;
+      theta = theta_+TAU/4;
     }
   }
 
@@ -145,7 +146,7 @@ class Player {
     pushMatrix();
     translate(x, y);
     scale(r/32);
-    rotate(theta+TAU/4);
+    rotate(theta);
 
     pushMatrix();
     translate(0, 28);
