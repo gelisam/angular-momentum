@@ -51,7 +51,7 @@ class Foot {
   void draw(float x, float y) {
     float angle = (cycle + offset) * -TAU;
     fill(255, 128, 128);
-    ellipse(x+8*cos(angle), y+4*sin(angle), 24, 16);
+    ellipse(x+14*cos(angle), y+4*sin(angle), 24, 16);
   }
 }
 
@@ -74,10 +74,10 @@ class Player {
   }
 
   void draw(float x, float y) {
-    back_foot.draw(x-10, y+28);
+    back_foot.draw(x, y+28);
     draw_body(x, y);
     eyes.draw(x-8, y);
-    front_foot.draw(x+10, y+30);
+    front_foot.draw(x, y+30);
   }
 }
 
