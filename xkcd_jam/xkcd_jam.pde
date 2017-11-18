@@ -6,10 +6,13 @@ PGraphics planet_graphics;
 PImage planet_shading;
 
 void setup() {
-  global_player = new Player(320, 180-100-32);
+  global_player = new Player(320, 180);
   global_planet = new Planet(320, 180, 100, "green-blue-planet.png", 0.1);
   planet_graphics = createGraphics(186, 186);
   planet_shading = loadImage("planet-shading.png");
+  
+  global_player.y -= global_planet.r;
+  global_player.y -= global_player.r;
 
   size(640, 360);
   noStroke();
@@ -84,6 +87,7 @@ class Foot {
 class Player {
   float x;
   float y;
+  float r = 16;
   Eyes eyes = new Eyes();
   Foot back_foot = new Foot(0.0);
   Foot front_foot = new Foot(0.5);
@@ -112,6 +116,7 @@ class Player {
   void draw() {
     pushMatrix();
     translate(x, y);
+    scale(r/32);
 
     pushMatrix();
     translate(0, 28);
