@@ -11,11 +11,11 @@ void setup() {
 
 class Eyes {
   float t = 0.0;
-  
+
   void update(float dt) {
     t += dt;
   }
-  
+
   void draw(float x, float y) {
     boolean blinking = (t % 3 >= 2.8);
     if (!blinking) {
@@ -27,19 +27,20 @@ class Eyes {
 }
 
 class Foot {
+  float offset;
   float cycle = 0.0;
   boolean other_foot;
-  
-  Foot(boolean other_foot_) {
-    other_foot = other_foot_;
+
+  Foot(float offset_) {
+    offset = offset_;
   }
-  
+
   void update(float dcycle) {
     cycle += dcycle;
   }
-  
+
   void draw(float x, float y) {
-    float angle = cycle * -TAU + (other_foot ? PI : 0);
+    float angle = (cycle + offset) * -TAU;
     fill(255, 128, 128);
     ellipse(x+8*cos(angle), y+4*sin(angle), 24, 16);
   }
@@ -47,22 +48,22 @@ class Foot {
 
 class Player {
   Eyes eyes = new Eyes();
-  Foot back_foot = new Foot(false);
-  Foot front_foot = new Foot(true);
-  
+  Foot back_foot = new Foot(0.0);
+  Foot front_foot = new Foot(0.5);
+
   void update(float dt, int dir) {
     eyes.update(dt);
-    
+
     float dcycle = dt*dir  / 0.4;
     back_foot.update(dcycle);
     front_foot.update(dcycle);
   }
-  
+
   void draw_body(float x, float y) {
     fill(128, 128, 255);
     ellipse(x, y, 64, 64);
   }
-  
+
   void draw(float x, float y) {
     back_foot.draw(x-10, y+28);
     draw_body(x, y);
@@ -75,7 +76,7 @@ void draw() {
   int dir = (left_pressed ? 1 : 0) + (right_pressed ? -1 : 0);
   float dt = 1.0/60;
   global_player.update(dt, dir);
-  
+
   background(0);
   global_player.draw(100, 100);
 }
