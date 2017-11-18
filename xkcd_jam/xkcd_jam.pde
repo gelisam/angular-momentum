@@ -1,6 +1,6 @@
 boolean left_pressed = false;
 boolean right_pressed = false;
-float global_t = 0.0;
+Player global_player = new Player();
 
 void setup() {
   size(640, 360);
@@ -28,19 +28,28 @@ void draw_eyes(float x, float y, float t) {
   }
 }
 
-void draw_player(float x, float y, float t) {
-  draw_foot(x-10, y+28, t, false);
-  draw_body(x, y, t);
-  draw_eyes(x-8, y, t);
-  draw_foot(x+10, y+30, t, true);
+class Player {
+  float t = 0.0;
+  
+  void update(float dt) {
+    t += dt;
+  }
+  
+  void draw(float x, float y) {
+    draw_foot(x-10, y+28, t, false);
+    draw_body(x, y, t);
+    draw_eyes(x-8, y, t);
+    draw_foot(x+10, y+30, t, true);
+  }
 }
 
 void draw() {
-  background(0);
-  draw_player(100, 100, global_t);
+  float dir = (left_pressed ? 1.0 : 0.0) + (right_pressed ? -1.0 : 0.0);
+  float dt = dir/60;
+  global_player.update(dt);
   
-  float dt = (left_pressed ? 1.0 : 0.0) + (right_pressed ? -1.0 : 0.0);
-  global_t += dt/60;
+  background(0);
+  global_player.draw(100, 100);
 }
 
 void keyPressed() {
