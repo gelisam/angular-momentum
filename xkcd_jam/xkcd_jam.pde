@@ -1,19 +1,22 @@
 boolean left_pressed = false;
 boolean right_pressed = false;
 Player global_player;
-Planet global_planet;
+Planet[] global_planets;
 PGraphics planet_graphics;
 PImage planet_shading;
 
 void setup() {
   global_player = new Player(320, 180);
-  global_planet = new Planet(320, 180, 100, "green-blue-planet.png", 0.1);
+  Planet planet = new Planet(320, 180, 100, "green-blue-planet.png", 0.1);
   planet_graphics = createGraphics(186, 186);
   planet_shading = loadImage("planet-shading.png");
   
-  global_player.y -= global_planet.r;
+  global_player.y -= planet.r;
   global_player.y -= global_player.r;
-  global_player.attach(global_planet);
+  global_player.attach(planet);
+  
+  global_planets = new Planet[1];
+  global_planets[0] = planet;
 
   size(640, 360);
   noStroke();
@@ -199,11 +202,17 @@ class Planet {
 void draw() {
   int dir = (left_pressed ? -1 : 0) + (right_pressed ? 1 : 0); // -1, 0, or 1
   float dt = 1.0/60; // seconds (assumes 60fps)
-  global_planet.update(dt);
+  for(int i=0; i<global_planets.length; ++i) {
+    Planet planet = global_planets[i];
+    planet.update(dt);
+  }
   global_player.update(dt, dir);
 
   background(0);
-  global_planet.draw();
+  for(int i=0; i<global_planets.length; ++i) {
+    Planet planet = global_planets[i];
+    planet.draw();
+  }
   global_player.draw();
 }
 
