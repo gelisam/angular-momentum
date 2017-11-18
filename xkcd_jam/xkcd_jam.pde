@@ -27,19 +27,19 @@ class Eyes {
 }
 
 class Foot {
-  float t = 0.0;
+  float cycle = 0.0;
   boolean other_foot;
   
   Foot(boolean other_foot_) {
     other_foot = other_foot_;
   }
   
-  void update(float dt) {
-    t += dt;
+  void update(float dcycle) {
+    cycle += dcycle;
   }
   
   void draw(float x, float y) {
-    float angle = t * -TWO_PI / 0.4 + (other_foot ? PI : 0);
+    float angle = cycle * -TAU + (other_foot ? PI : 0);
     fill(255, 128, 128);
     ellipse(x+8*cos(angle), y+4*sin(angle), 24, 16);
   }
@@ -53,8 +53,9 @@ class Player {
   void update(float dt, int dir) {
     eyes.update(dt);
     
-    back_foot.update(dt*dir);
-    front_foot.update(dt*dir);
+    float dcycle = dt*dir  / 0.4;
+    back_foot.update(dcycle);
+    front_foot.update(dcycle);
   }
   
   void draw_body(float x, float y) {
