@@ -39,6 +39,28 @@ void setup() {
   loop();
 }
 
+// (-5) % 4 == -1
+// absMod(-5, 4) = 3
+float absMod(float x, float y) {
+  float r = x % y;
+  if (r < 0) {
+    return r + y;
+  } else {
+    return r;
+  }
+}
+
+float lerpAngle(float theta1, float theta2, float fraction) {
+  float dtheta = absMod(theta2 - theta1, TAU);
+  if (dtheta < PI) {
+    theta2 = theta1 + dtheta;
+  } else {
+    theta2 = theta1 + dtheta - TAU;
+  }
+  
+  return lerp(theta1, theta2, fraction);
+}
+
 Planet find_closest_planet(float x, float y) {
   Planet closest_planet = null;
   float closest_distance_squared = 0.0; // only valid when closest_planet != null
@@ -159,7 +181,7 @@ class Player {
       
       Planet closest_planet = find_closest_planet(x, y);
       target_theta = atan2(y-closest_planet.y, x-closest_planet.x)+TAU/4;
-      theta = lerp(theta, target_theta, 0.1);
+      theta = lerpAngle(theta, target_theta, 0.1);
     } else {
       // project the walking speed onto the planet, in radians
       float dtheta = atan2(dx, attached_planet.r);
