@@ -6,8 +6,8 @@ PGraphics planet_graphics;
 PImage planet_shading;
 
 void setup() {
-  global_player = new Player(320, 300);
-  global_planet = new Planet(100, 100, 50, "green-blue-planet.png", 1.0);
+  global_player = new Player(320, 180-100-32);
+  global_planet = new Planet(320, 180, 100, "green-blue-planet.png", 0.1);
   planet_graphics = createGraphics(186, 186);
   planet_shading = loadImage("planet-shading.png");
 
