@@ -11,17 +11,31 @@ void setup() {
 
 class Eyes {
   float t = 0.0;
+  float offset = -1.0;
+  float target = -1.0;
 
-  void update(float dt) {
+  void update(float dt, int dir) {
     t += dt;
+
+    float doffset = dt/0.1;
+    target = (dir == -1) ?  1.0
+           : (dir ==  1) ? -1.0
+           : target;
+    if (abs(offset - target) < dt) {
+      offset = target;
+    } else if (target > offset) {
+      offset += doffset;
+    } else {
+      offset -= doffset;
+    }
   }
 
   void draw(float x, float y) {
     boolean blinking = (t % 3 >= 2.8);
     if (!blinking) {
       fill(255, 255, 255);
-      ellipse(x-8, y, 8, 16);
-      ellipse(x+8, y, 8, 16);
+      ellipse(x+offset*8-8, y, 8, 16);
+      ellipse(x+offset*8+8, y, 8, 16);
     }
   }
 }
@@ -61,7 +75,7 @@ class Player {
   Foot front_foot = new Foot(0.5);
 
   void update(float dt, int dir) {
-    eyes.update(dt);
+    eyes.update(dt, dir);
 
     float dcycle = dt / 0.4;
     back_foot.update(dcycle, dir);
@@ -76,7 +90,7 @@ class Player {
   void draw(float x, float y) {
     back_foot.draw(x, y+28);
     draw_body(x, y);
-    eyes.draw(x-8, y);
+    eyes.draw(x, y);
     front_foot.draw(x, y+30);
   }
 }
