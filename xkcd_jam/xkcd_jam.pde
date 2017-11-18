@@ -1,8 +1,12 @@
 boolean left_pressed = false;
 boolean right_pressed = false;
-Player global_player = new Player(320, 300);
+Player global_player;;
+Planet global_planet;
 
 void setup() {
+  global_player = new Player(320, 300);
+  global_planet = new Planet(100, 100, 93, "green-blue-planet.png", 1.0);
+
   size(640, 360);
   noStroke();
   loop();
@@ -121,12 +125,43 @@ class Player {
   }
 }
 
+class Planet {
+  float x;
+  float y;
+  float r;
+  PImage img;
+  float speed;
+  float angle = 0.0;
+  
+  Planet(float x_, float y_, float r_, String filename, float speed_) {
+    x = x_;
+    y = y_;
+    r = r_;
+    img = loadImage(filename);
+    speed = speed_;
+  }
+  
+  void update(float dt) {
+    angle += speed * dt * TAU;
+  }
+  
+  void draw() {
+    pushMatrix();
+    translate(x, y);
+    rotate(angle);
+    image(img, -r, -r);
+    popMatrix();
+  }
+}
+
 void draw() {
   int dir = (left_pressed ? -1 : 0) + (right_pressed ? 1 : 0);
   float dt = 1.0/60;
+  global_planet.update(dt);
   global_player.update(dt, dir);
 
   background(0);
+  global_planet.draw();
   global_player.draw();
 }
 
