@@ -79,9 +79,9 @@ class Foot {
   }
 
   void draw() {
-    float angle = (cycle + offset) * TAU;
+    float theta = (cycle + offset) * TAU;
     fill(255, 128, 128);
-    ellipse(14*cos(angle), 4*sin(angle), 24, 16);
+    ellipse(14*cos(theta), 4*sin(theta), 24, 16);
   }
 }
 
@@ -94,7 +94,7 @@ class Player {
   Foot back_foot = new Foot(0.0);
   Foot front_foot = new Foot(0.5);
   Planet attached_planet = null;
-  float attached_angle;
+  float attached_theta;
 
   Player(float x_, float y_) {
     x = x_;
@@ -103,7 +103,7 @@ class Player {
   
   void attach(Planet planet) {
     attached_planet = planet;
-    attached_angle = atan2(y-planet.y, x-planet.x);
+    attached_theta = atan2(y-planet.y, x-planet.x);
   }
   
   void detach() {
@@ -122,9 +122,9 @@ class Player {
       x += dir*dx;
     } else {
       float r_ = attached_planet.r + r;
-      float angle = attached_planet.angle + attached_angle;
-      x = attached_planet.x + r_ * cos(angle);
-      y = attached_planet.y + r_ * sin(angle);
+      float theta = attached_planet.theta + attached_theta;
+      x = attached_planet.x + r_ * cos(theta);
+      y = attached_planet.y + r_ * sin(theta);
     }
   }
 
@@ -161,7 +161,7 @@ class Planet {
   float r;
   PImage img;
   float speed;
-  float angle = 0.0;
+  float theta = 0.0;
   
   Planet(float x_, float y_, float r_, String filename, float speed_) {
     x = x_;
@@ -172,7 +172,7 @@ class Planet {
   }
   
   void update(float dt) {
-    angle += speed * dt * TAU;
+    theta += speed * dt * TAU;
   }
   
   void draw() {
@@ -180,7 +180,7 @@ class Planet {
     planet_graphics.background(0, 0, 0, 0);
     planet_graphics.pushMatrix();
     planet_graphics.translate(93, 93);
-    planet_graphics.rotate(angle);
+    planet_graphics.rotate(theta);
     planet_graphics.image(img, -93, -93, 186, 186);
     planet_graphics.popMatrix();
     planet_graphics.blend(planet_shading, 0, 0, 186, 186, 0, 0, 186, 186, OVERLAY);
