@@ -57,18 +57,18 @@ Planet find_closest_planet(float x, float y) {
 class Eyes {
   float t = 0.0; // seconds
   float offset = 1.0; // -1.0 to 1.0
-  float target = 1.0; // -1.0 to 1.0
+  float target_offset = 1.0; // -1.0 to 1.0
 
   void update(float dt, int dir) {
     t += dt;
 
     float doffset = dt/0.1;
-    target = (dir ==  1) ?  1.0
-           : (dir == -1) ? -1.0
-           : target;
-    if (abs(offset - target) < dt) {
-      offset = target;
-    } else if (target > offset) {
+    target_offset = (dir ==  1) ?  1.0
+                  : (dir == -1) ? -1.0
+                  : target_offset;
+    if (abs(offset - target_offset) < dt) {
+      offset = target_offset;
+    } else if (target_offset > offset) {
       offset += doffset;
     } else {
       offset -= doffset;
