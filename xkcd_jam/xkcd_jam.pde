@@ -14,14 +14,18 @@ void load_level(int level) {
 
     global_player.y -= planet.r;
     global_player.y -= global_player.r;
-    global_player.attach();
+    global_player.attach(planet);
 
     global_planets = new Planet[1];
     global_planets[0] = planet;
   } else if (level == 2) {
-    global_player = new Player(320, 180);
+    global_player = new Player(215, 180);
     Planet left_planet = new Planet(215, 180, 50, "beach-planet.png", 0.1);
     Planet right_planet = new Planet(425, 180, 50, "purple-planet.png", 0.1);
+
+    global_player.y -= left_planet.r;
+    global_player.y -= global_player.r;
+    global_player.attach(left_planet);
 
     global_planets = new Planet[2];
     global_planets[0] = left_planet;
@@ -78,6 +82,21 @@ Planet find_closest_planet(float x, float y) {
   return closest_planet;
 }
 
+boolean are_circles_colliding(float x1, float y1, float r1, float x2, float y2, float r2) {
+  return sq(x2-x1) + sq(y2-y1) < sq(r1+r2);
+}
+
+// null if not colliding
+Planet find_colliding_planet(float x, float y, float r) {
+  for (int i=0; i<global_planets.length; ++i) {
+    Planet planet = global_planets[i];
+    if (are_circles_colliding(x, y, r, planet.x, planet.y, planet.r)) {
+      return planet;
+    }
+  }
+
+  return null;
+}
 
 class Eyes {
   float t = 0.0; // seconds
@@ -163,9 +182,8 @@ class Player {
     last_y = y = y_;
   }
 
-  void attach() {
+  void attach(Planet planet) {
     if (attached_planet == null) {
-      Planet planet = find_closest_planet(x, y);
       attached_planet = planet;
       attached_theta = atan2(y-planet.y, x-planet.x) - attached_planet.theta;
     }
@@ -183,7 +201,10 @@ class Player {
     if (floating) {
       detach();
     } else {
-      attach();
+      Planet planet = find_colliding_planet(x, y, r);
+      if (planet != null) {
+        attach(planet);
+      }
     }
 
     if (attached_planet == null) {
