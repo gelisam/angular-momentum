@@ -13,6 +13,7 @@ void setup() {
   
   global_player.y -= global_planet.r;
   global_player.y -= global_player.r;
+  global_player.attach(global_planet);
 
   size(640, 360);
   noStroke();
@@ -88,13 +89,25 @@ class Player {
   float x;
   float y;
   float r = 16;
+  float walking_speed = 200;
   Eyes eyes = new Eyes();
   Foot back_foot = new Foot(0.0);
   Foot front_foot = new Foot(0.5);
+  Planet attached_planet = null;
+  float attached_angle;
 
   Player(float x_, float y_) {
     x = x_;
     y = y_;
+  }
+  
+  void attach(Planet planet) {
+    attached_planet = planet;
+    attached_angle = atan2(y-planet.y, x-planet.x);
+  }
+  
+  void detach() {
+    attached_planet = null;
   }
 
   void update(float dt, int dir) {
@@ -104,8 +117,15 @@ class Player {
     back_foot.update(dcycle, dir);
     front_foot.update(dcycle, dir);
     
-    float dx = dt * 200;
-    x += dir*dx;
+    float dx = dt * walking_speed;
+    if (attached_planet == null) {
+      x += dir*dx;
+    } else {
+      float r_ = attached_planet.r + r;
+      float angle = attached_planet.angle + attached_angle;
+      x = attached_planet.x + r_ * cos(angle);
+      y = attached_planet.y + r_ * sin(angle);
+    }
   }
 
   void draw_body() {
