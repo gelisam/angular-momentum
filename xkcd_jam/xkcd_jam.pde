@@ -35,8 +35,17 @@ class Foot {
     offset = offset_;
   }
 
-  void update(float dcycle) {
-    cycle += dcycle;
+  void update(float dcycle, int dir) {
+    float target = (dir ==  1) ? (cycle + 1)
+                 : (dir == -1) ? (cycle - 1)
+                 : round(cycle*2.0)/2.0;
+    if (abs(cycle - target) < dcycle) {
+      cycle = target;
+    } else if (target > cycle) {
+      cycle += dcycle;
+    } else {
+      cycle -= dcycle;
+    }
   }
 
   void draw(float x, float y) {
@@ -54,9 +63,9 @@ class Player {
   void update(float dt, int dir) {
     eyes.update(dt);
 
-    float dcycle = dt*dir  / 0.4;
-    back_foot.update(dcycle);
-    front_foot.update(dcycle);
+    float dcycle = dt / 0.4;
+    back_foot.update(dcycle, dir);
+    front_foot.update(dcycle, dir);
   }
 
   void draw_body(float x, float y) {
