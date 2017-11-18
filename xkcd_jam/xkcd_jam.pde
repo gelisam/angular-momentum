@@ -12,7 +12,7 @@ void loadLevel(int level) {
   
     global_player.y -= planet.r;
     global_player.y -= global_player.r;
-    global_player.attach(planet);
+    global_player.attach();
     
     global_planets = new Planet[1];
     global_planets[0] = planet;
@@ -37,6 +37,20 @@ void setup() {
   noStroke();
   imageMode(CENTER);
   loop();
+}
+
+Planet findClosestPlanet(float x, float y) {
+  Planet closest_planet = null;
+  float closest_distance_squared = 0.0; // only valid when closest_planet != null
+  for(int i=0; i<global_planets.length; ++i) {
+    Planet planet = global_planets[i];
+    float distance_squared = sq(x - planet.x) + sq(y - planet.y);
+    if (closest_planet == null || distance_squared < closest_distance_squared) {
+      closest_planet = planet;
+      closest_distance_squared = distance_squared;
+    }
+  }
+  return closest_planet;
 }
 
 
@@ -119,7 +133,8 @@ class Player {
     y = y_;
   }
   
-  void attach(Planet planet) {
+  void attach() {
+    Planet planet = findClosestPlanet(x, y);
     attached_planet = planet;
     attached_theta = atan2(y-planet.y, x-planet.x) - attached_planet.theta;
   }
@@ -141,17 +156,7 @@ class Player {
       x += dir*dx*cos(theta);
       y += dir*dx*sin(theta);
       
-      Planet closest_planet = null;
-      float closest_distance_squared = 0.0; // only valid when closest_planet != null
-      for(int i=0; i<global_planets.length; ++i) {
-        Planet planet = global_planets[i];
-        float distance_squared = sq(x - planet.x) + sq(y - planet.y);
-        if (closest_planet == null || distance_squared < closest_distance_squared) {
-          closest_planet = planet;
-          closest_distance_squared = distance_squared;
-        }
-      }
-      
+      Planet closest_planet = findClosestPlanet(x, y);
       theta = atan2(y-closest_planet.y, x-closest_planet.x)+TAU/4;
     } else {
       // project the walking speed onto the planet, in radians
@@ -257,7 +262,7 @@ void keyPressed() {
   } else if (keyCode == UP) {
     global_player.detach();
   } else if (keyCode == DOWN) {
-    global_player.attach(global_planets[0]);
+    global_player.attach();
   }
 }
 
