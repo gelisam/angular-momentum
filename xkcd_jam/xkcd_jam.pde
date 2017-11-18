@@ -30,12 +30,15 @@ class Eyes {
     }
   }
 
-  void draw(float x, float y) {
+  void draw() {
     boolean blinking = (t % 3 >= 2.8);
     if (!blinking) {
+      pushMatrix();
+      translate(offset*8, 0);
       fill(255, 255, 255);
-      ellipse(x+offset*8-8, y, 8, 16);
-      ellipse(x+offset*8+8, y, 8, 16);
+      ellipse(-8, 0, 8, 16);
+      ellipse( 8, 0, 8, 16);
+      popMatrix();
     }
   }
 }
@@ -62,10 +65,10 @@ class Foot {
     }
   }
 
-  void draw(float x, float y) {
+  void draw() {
     float angle = (cycle + offset) * TAU;
     fill(255, 128, 128);
-    ellipse(x+14*cos(angle), y+4*sin(angle), 24, 16);
+    ellipse(14*cos(angle), 4*sin(angle), 24, 16);
   }
 }
 
@@ -82,16 +85,24 @@ class Player {
     front_foot.update(dcycle, dir);
   }
 
-  void draw_body(float x, float y) {
+  void draw_body() {
     fill(128, 128, 255);
-    ellipse(x, y, 64, 64);
+    ellipse(0, 0, 64, 64);
   }
 
-  void draw(float x, float y) {
-    back_foot.draw(x, y+28);
-    draw_body(x, y);
-    eyes.draw(x, y);
-    front_foot.draw(x, y+30);
+  void draw() {
+    pushMatrix();
+    translate(0, 28);
+    back_foot.draw();
+    popMatrix();
+    
+    draw_body();
+    eyes.draw();
+    
+    pushMatrix();
+    translate(0, 30);
+    front_foot.draw();
+    popMatrix();
   }
 }
 
@@ -101,7 +112,10 @@ void draw() {
   global_player.update(dt, dir);
 
   background(0);
-  global_player.draw(100, 100);
+  pushMatrix();
+  translate(100, 100);
+  global_player.draw();
+  popMatrix();
 }
 
 void keyPressed() {
