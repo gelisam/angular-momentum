@@ -18,8 +18,8 @@ class Eyes {
     t += dt;
 
     float doffset = dt/0.1;
-    target = (dir == -1) ?  1.0
-           : (dir ==  1) ? -1.0
+    target = (dir ==  1) ?  1.0
+           : (dir == -1) ? -1.0
            : target;
     if (abs(offset - target) < dt) {
       offset = target;
@@ -63,7 +63,7 @@ class Foot {
   }
 
   void draw(float x, float y) {
-    float angle = (cycle + offset) * -TAU;
+    float angle = (cycle + offset) * TAU;
     fill(255, 128, 128);
     ellipse(x+14*cos(angle), y+4*sin(angle), 24, 16);
   }
@@ -96,7 +96,7 @@ class Player {
 }
 
 void draw() {
-  int dir = (left_pressed ? 1 : 0) + (right_pressed ? -1 : 0);
+  int dir = (left_pressed ? -1 : 0) + (right_pressed ? 1 : 0);
   float dt = 1.0/60;
   global_player.update(dt, dir);
 
