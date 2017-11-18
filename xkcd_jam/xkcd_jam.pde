@@ -23,9 +23,9 @@ void setup() {
 
 
 class Eyes {
-  float t = 0.0;
-  float offset = 1.0;
-  float target = 1.0;
+  float t = 0.0; // seconds
+  float offset = 1.0; // -1.0 to 1.0
+  float target = 1.0; // -1.0 to 1.0
 
   void update(float dt, int dir) {
     t += dt;
@@ -57,8 +57,8 @@ class Eyes {
 }
 
 class Foot {
-  float offset;
-  float cycle = 0.0;
+  float offset; // turns
+  float cycle = 0.0; // turns
   boolean other_foot;
 
   Foot(float offset_) {
@@ -86,15 +86,15 @@ class Foot {
 }
 
 class Player {
-  float x;
-  float y;
-  float r = 16;
-  float walking_speed = 200;
+  float x; // pixels
+  float y; // pixels
+  float r = 16; // pixels
+  float walking_speed = 200; // pixels/second
   Eyes eyes = new Eyes();
   Foot back_foot = new Foot(0.0);
   Foot front_foot = new Foot(0.5);
   Planet attached_planet = null;
-  float attached_theta;
+  float attached_theta; // radians, only valid when attached_planet != null
 
   Player(float x_, float y_) {
     x = x_;
@@ -156,12 +156,12 @@ class Player {
 }
 
 class Planet {
-  float x;
-  float y;
-  float r;
+  float x; // pixels
+  float y; // pixels
+  float r; // pixels
   PImage img;
-  float speed;
-  float theta = 0.0;
+  float speed; // turns/second
+  float theta = 0.0; // radians
   
   Planet(float x_, float y_, float r_, String filename, float speed_) {
     x = x_;
@@ -194,8 +194,8 @@ class Planet {
 }
 
 void draw() {
-  int dir = (left_pressed ? -1 : 0) + (right_pressed ? 1 : 0);
-  float dt = 1.0/60;
+  int dir = (left_pressed ? -1 : 0) + (right_pressed ? 1 : 0); // -1, 0, or 1
+  float dt = 1.0/60; // seconds (assumes 60fps)
   global_planet.update(dt);
   global_player.update(dt, dir);
 
