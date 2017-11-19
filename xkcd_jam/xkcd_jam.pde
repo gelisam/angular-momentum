@@ -92,6 +92,24 @@ void load_level(int level) {
     for (int i=0; i<8; ++i) {
       global_tokens[i] = new Token(320-i*25, 260);
     }
+  } else if (level == 4) {
+    Planet left_planet = new Planet(320-200, 180, 25, "yellow-planet.png", 0.1);
+    Planet right_planet = new Planet(320+200, 180, 25, "beach-planet.png", 0.1);
+    start_on(left_planet);
+
+    global_planets = new Planet[2];
+    global_planets[0] = left_planet;
+    global_planets[1] = right_planet;
+
+    global_stars = new Star[1];
+    global_stars[0] = new Star(320, 180, 100);
+
+    global_tokens = new Token[12];
+    for (int i=0; i<6; ++i) {
+      float theta = i * TAU/24 - 3*PI/4 + TAU/48;
+      global_tokens[i] = new Token(320 + 200*cos(theta), 180 + 150*sin(theta));
+      global_tokens[i+6] = new Token(320 + 200*cos(theta), 180 - 150*sin(theta));
+    }
   }
 
   global_masses = new Mass[global_planets.length + global_stars.length];
@@ -103,6 +121,13 @@ void load_level(int level) {
   }
 
   current_level = level;
+}
+
+void restart_level() {
+  if (loading_phase == PLAYING_PHASE) {
+    overlay_alpha = 0.0;
+    loading_phase = DYING_IN_PHASE;
+  }
 }
 
 void next_level() {
@@ -186,6 +211,18 @@ Planet find_colliding_planet(float x, float y, float r) {
     Planet planet = global_planets[i];
     if (are_circles_colliding(x, y, r, planet.x, planet.y, planet.r)) {
       return planet;
+    }
+  }
+
+  return null;
+}
+
+// null if not colliding
+Star find_colliding_star(float x, float y, float r) {
+  for (int i=0; i<global_stars.length; ++i) {
+    Star star = global_stars[i];
+    if (are_circles_colliding(x, y, r, star.x, star.y, star.r)) {
+      return star;
     }
   }
 
@@ -383,6 +420,11 @@ class Player {
       if (planet != null) {
         attach(planet);
       }
+    }
+
+    Star star = find_colliding_star(x, y, r);
+    if (star != null) {
+      restart_level();
     }
 
     Token token = find_colliding_token(x, y, r);
@@ -725,8 +767,7 @@ void keyReleased() {
     w_pressed = false;
   } else if (key == 'r') {
     if (loading_phase == PLAYING_PHASE) {
-      overlay_alpha = 0.0;
-      loading_phase = DYING_IN_PHASE;
+      restart_level();
     }
   }
 }
