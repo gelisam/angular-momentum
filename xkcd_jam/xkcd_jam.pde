@@ -93,6 +93,7 @@ void load() {
 
   load_level(0);
 
+  textSize(16);
   textSize(32);
   textAlign(CENTER);
 }
@@ -207,6 +208,7 @@ class Text {
     translate(-x, -y);
 
     fill(128, 128, 128, 128);
+    textSize(32);
     text(txt, 321, 181);
 
     fill(255, 255, 255);
@@ -286,6 +288,7 @@ class Player {
   float r = 16; // pixels
   float walking_speed = 20; // pixels/second
   float helmet_power = 0.0; // seconds
+  int collected_tokens;
   float last_x;
   float last_y;
   PVector velocity = new PVector(); // pixels/second, only valid when attached_planed == null
@@ -343,6 +346,10 @@ class Player {
     Token token = find_colliding_token(x, y, r);
     if (token != null) {
       token.collected = true;
+      ++collected_tokens;
+      if (collected_tokens >= global_tokens.length) {
+        next_level();
+      }
     }
 
     if (attached_planet != null && !holding_up) {
@@ -401,6 +408,14 @@ class Player {
     }
 
     image(helmet_image, 500, 338, 30, 30);
+  }
+
+  void draw_collected_tokens() {
+    fill(255, 255, 255);
+    textSize(16);
+    text("" + collected_tokens + " / " + global_tokens.length, 600, 32);
+
+    image(token_image, 550, 26, 30, 30);
   }
 
   void draw() {
@@ -578,6 +593,7 @@ void draw() {
       token.draw();
     }
     global_player.draw();
+    global_player.draw_collected_tokens();
 
     popMatrix();
 
