@@ -1,6 +1,6 @@
 float gravity_constant = 0.001;
 float walking_speed = 20; // pixels/second
-float momentum_transfer = 100.0;
+float momentum_transfer = 1.0;
 float min_gravity = 0.1; // otherwise reaching escape velocity means game over
 float helmet_duration = 1.0;
 
@@ -553,7 +553,7 @@ class Planet extends Mass {
     x = x_;
     y = y_;
     r = r_;
-    mass = 4*PI*r*r*r/3;
+    mass = PI*r*r; // going with the cube makes too big of a difference
     img = loadImage(filename);
     speed = speed_;
   }
@@ -585,7 +585,7 @@ class Star extends Mass {
     x = x_;
     y = y_;
     r = r_;
-    mass = 4*PI*r*r*r/3;
+    mass = PI*r*r; // going with the cube makes too big of a difference
   }
 
   void draw() {
