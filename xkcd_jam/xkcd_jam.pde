@@ -41,6 +41,7 @@ Star[] global_stars;
 Mass[] global_masses;
 Token[] global_tokens;
 Text global_text = null;
+Credits global_credits = null;
 
 void start_on(Planet planet) {
   global_player = new Player(planet.x, planet.y - planet.r);
@@ -151,6 +152,7 @@ void next_level() {
     loading_phase = WINNING_IN_PHASE;
   } else {
     overlay_alpha = 0.0;
+    global_credits = new Credits();
     loading_phase = CREDITS_IN_PHASE;
   }
 }
@@ -642,6 +644,40 @@ class Token {
   }
 }
 
+class Credits {
+  Text[] lines;
+  float t = 0.0;
+  float speed = -0.05;
+  float gap = 1.5;
+
+  Credits() {
+    lines = new Text[8];
+    lines[0] = new Text("ANGULAR MOMENTUM", speed);
+    lines[1] = new Text("", speed);
+    lines[2] = new Text("made in 48h by Samuel Gélineau", speed);
+    lines[3] = new Text("for the 2017 xkcd game jam", speed);
+    lines[4] = new Text("", speed);
+    lines[5] = new Text("", speed);
+    lines[6] = new Text("", speed);
+    lines[7] = new Text("THE END", speed);
+  }
+
+  void update(float dt) {
+    t += dt;
+
+    int n = floor(t / gap) + 1;
+    for (int i=0; i<n && i<lines.length; ++i) {
+      lines[i].update(dt);
+    }
+  }
+
+  void draw() {
+    for (int i=0; i<lines.length; ++i) {
+      lines[i].draw();
+    }
+  }
+}
+
 void draw() {
   float dt = 1.0/60; // seconds (assumes 60fps)
 
@@ -649,6 +685,9 @@ void draw() {
     if (!global_text.update(dt)) {
       global_text = null;
     }
+  }
+  if (global_credits != null) {
+    global_credits.update(dt);
   }
 
   if (loading_phase == SPLASH_IN_PHASE) {
@@ -676,8 +715,7 @@ void draw() {
     loading_phase = WINNING_OUT_PHASE;
   } else if (loading_phase == CREDITS_LOADING_PHASE) {
     load_level(current_level+1);
-    camera_theta = -TAU/8;
-    global_text = new Text("ANGULAR MOMENTUM\nmade in 48h for the xkcd game jam\nby Samuel Gélineau\n\n\nTHE END", -0.05);
+    camera_theta = -TAU/4;
     loading_phase = CREDITS_PHASE;
   } else if (loading_phase == SPLASH_OUT_PHASE) {
     background(0);
@@ -729,7 +767,7 @@ void draw() {
         loading_phase = CREDITS_LOADING_PHASE;
       }
     } else if (loading_phase == CREDITS_PHASE) {
-      camera_theta += dt * (TAU/8) / 4.0;
+      camera_theta += dt * (TAU/8) / 12.0;
       if (camera_theta > TAU/8) {
         camera_theta = -TAU/8;
       }
@@ -792,6 +830,9 @@ void draw() {
 
   if (global_text != null) {
     global_text.draw();
+  }
+  if (global_credits != null) {
+    global_credits.draw();
   }
 }
 
