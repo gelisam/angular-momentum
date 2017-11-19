@@ -2,6 +2,10 @@ float gravity_constant = 0.001;
 float min_gravity = 0.1; // otherwise reaching escape velocity means game over
 float helmet_duration = 1.0;
 
+int loading_phase = 0;
+PImage title_image;
+float title_alpha = 0.0;
+
 boolean left_pressed = false;
 boolean right_pressed = false;
 boolean up_pressed = false;
@@ -20,8 +24,6 @@ void start_on(Planet planet) {
 void load_level(int level) {
   String level_name = "LEVEL " + level;
   if (level == 1) {
-    level_name = "ANGULAR MOMENTUM";
-
     Planet planet = new Planet(320, 180, 100, "green-blue-planet.png", 0.1);
     start_on(planet);
 
@@ -41,18 +43,23 @@ void load_level(int level) {
 }
 
 void setup() {
+  title_image = loadImage("title.png");
+
+  size(640, 360);
+  noStroke();
+  imageMode(CENTER);
+  loop();
+}
+
+void load() {
   planet_graphics = createGraphics(186, 186);
   planet_shading = loadImage("planet-shading.png");
   helmet_image = loadImage("helmet.png");
 
   load_level(2);
 
-  size(640, 360);
-  noStroke();
   textSize(32);
   textAlign(CENTER);
-  imageMode(CENTER);
-  loop();
 }
 
 // (-5) % 4 == -1
@@ -418,27 +425,57 @@ class Planet {
 }
 
 void draw() {
-  int dir = (left_pressed ? -1 : 0) + (right_pressed ? 1 : 0); // -1, 0, or 1
   float dt = 1.0/60; // seconds (assumes 60fps)
-  for (int i=0; i<global_planets.length; ++i) {
-    Planet planet = global_planets[i];
-    planet.update(dt);
-  }
-  global_player.update(dt, dir, up_pressed);
-  if (global_text != null) {
-    if (!global_text.update(dt)) {
-      global_text = null;
-    }
-  }
 
-  background(0);
-  for (int i=0; i<global_planets.length; ++i) {
-    Planet planet = global_planets[i];
-    planet.draw();
-  }
-  global_player.draw();
-  if (global_text != null) {
-    global_text.draw();
+  if (loading_phase == 0) {
+    background(0);
+    image(title_image, 325, 180);
+
+    title_alpha += dt * 255 / 1.0;
+    if (title_alpha > 255.0) {
+      title_alpha = 255;
+      loading_phase = 1;
+    }
+
+    fill(0, 0, 0, 255-title_alpha);
+    rect(0, 0, 640, 360);
+  } else if (loading_phase == 1) {
+    load();
+    loading_phase = 2;
+  } else if (loading_phase == 2) {
+    background(0);
+    image(title_image, 325, 180);
+
+    title_alpha -= dt * 255 / 1.0;
+    if (title_alpha < 0.0) {
+      title_alpha = 0.0;
+      loading_phase = 3;
+    }
+
+    fill(0, 0, 0, 255-title_alpha);
+    rect(0, 0, 640, 360);
+  } else {
+    int dir = (left_pressed ? -1 : 0) + (right_pressed ? 1 : 0); // -1, 0, or 1
+    for (int i=0; i<global_planets.length; ++i) {
+      Planet planet = global_planets[i];
+      planet.update(dt);
+    }
+    global_player.update(dt, dir, up_pressed);
+    if (global_text != null) {
+      if (!global_text.update(dt)) {
+        global_text = null;
+      }
+    }
+
+    background(0);
+    for (int i=0; i<global_planets.length; ++i) {
+      Planet planet = global_planets[i];
+      planet.draw();
+    }
+    global_player.draw();
+    if (global_text != null) {
+      global_text.draw();
+    }
   }
 }
 
