@@ -32,6 +32,7 @@ int current_level = -1;
 Player global_player;
 Planet[] global_planets;
 Star[] global_stars;
+Mass[] global_masses;
 Token[] global_tokens;
 Text global_text = null;
 
@@ -91,6 +92,14 @@ void load_level(int level) {
     for (int i=0; i<8; ++i) {
       global_tokens[i] = new Token(320-i*25, 260);
     }
+  }
+
+  global_masses = new Mass[global_planets.length + global_stars.length];
+  for (int i=0; i<global_planets.length; ++i) {
+    global_masses[i] = global_planets[i];
+  }
+  for (int i=0; i<global_stars.length; ++i) {
+    global_masses[global_planets.length + i] = global_stars[i];
   }
 
   current_level = level;
@@ -155,18 +164,8 @@ float lerpAngle(float theta1, float theta2, float fraction) {
 Mass find_closest_mass(float x, float y) {
   Mass closest_mass = null;
   float closest_distance_squared = 0.0; // only valid when closest_planet != null
-
-  for (int i=0; i<global_planets.length; ++i) {
-    Mass mass = global_planets[i];
-    float distance_squared = sq(x - mass.x) + sq(y - mass.y);
-    if (closest_mass == null || distance_squared < closest_distance_squared) {
-      closest_mass = mass;
-      closest_distance_squared = distance_squared;
-    }
-  }
-
-  for (int i=0; i<global_stars.length; ++i) {
-    Mass mass = global_stars[i];
+  for (int i=0; i<global_masses.length; ++i) {
+    Mass mass = global_masses[i];
     float distance_squared = sq(x - mass.x) + sq(y - mass.y);
     if (closest_mass == null || distance_squared < closest_distance_squared) {
       closest_mass = mass;
@@ -208,19 +207,8 @@ Token find_colliding_token(float x, float y, float r) {
 // force on a 1 kilogram object, in newtons/kilogram
 PVector gravity_force_at(float x, float y) {
   PVector force = new PVector();
-
-  for (int i=0; i<global_planets.length; ++i) {
-    Mass mass = global_planets[i];
-    PVector towards_mass = new PVector(mass.x - x, mass.y - y);
-    towards_mass.normalize();
-    float r_squared = sq(mass.x - x) + sq(mass.y - y);
-    float gravity = mass.mass / r_squared;
-    towards_mass.mult(gravity);
-    force.add(towards_mass);
-  }
-
-  for (int i=0; i<global_stars.length; ++i) {
-    Mass mass = global_stars[i];
+  for (int i=0; i<global_masses.length; ++i) {
+    Mass mass = global_masses[i];
     PVector towards_mass = new PVector(mass.x - x, mass.y - y);
     towards_mass.normalize();
     float r_squared = sq(mass.x - x) + sq(mass.y - y);
