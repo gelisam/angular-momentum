@@ -241,9 +241,12 @@ class Player {
       wearing_helmet = false;
       Planet planet = find_colliding_planet(x, y, r);
       if (planet != null) {
-        helmet_power = helmet_duration;
         attach(planet);
       }
+    }
+
+    if (attached_planet != null && !holding_up) {
+      helmet_power = helmet_duration;
     }
 
     if (attached_planet == null) {
