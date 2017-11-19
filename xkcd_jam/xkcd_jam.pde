@@ -26,10 +26,12 @@ boolean w_pressed = false;
 PGraphics planet_graphics;
 PImage planet_shading;
 PImage helmet_image;
+PImage star_image;
 PImage token_image;
 int current_level = -1;
 Player global_player;
 Planet[] global_planets;
+Star[] global_stars;
 Token[] global_tokens;
 Text global_text = null;
 
@@ -41,6 +43,7 @@ void start_on(Planet planet) {
 void load_level(int level) {
   if (level == 0) {
     global_planets = new Planet[0];
+    global_stars = new Star[0];
     global_tokens = new Token[0];
   } else if (level == 1) {
     Planet planet = new Planet(320, 180, 100, "green-blue-planet.png", 0.1);
@@ -48,6 +51,8 @@ void load_level(int level) {
 
     global_planets = new Planet[1];
     global_planets[0] = planet;
+
+    global_stars = new Star[0];
 
     global_tokens = new Token[12];
     float r = planet.r + 3*global_player.r;
@@ -59,6 +64,7 @@ void load_level(int level) {
     float dx = 100;
     float r = 50;
     global_planets = new Planet[3];
+    global_stars = new Star[0];
     global_tokens = new Token[4];
     global_tokens[0] = new Token(320-3*dx, 180);
     global_planets[0] = new Planet(320-2*dx, 180, r, "beach-planet.png", 0.1);
@@ -68,6 +74,23 @@ void load_level(int level) {
     global_planets[2] = new Planet(320+2*dx, 180, r, "red-planet.png", 0.1);
     global_tokens[3] = new Token(320+3*dx, 180);
     start_on(global_planets[0]);
+  } else if (level == 3) {
+    Star star = new Star(320, 180, 50);
+
+    global_player = new Player(320, 100);
+    global_player.helmet_power = helmet_duration;
+    global_player.velocity.x = 3;
+    global_player.velocity.y = 0;
+
+    global_planets = new Planet[0];
+
+    global_stars = new Star[1];
+    global_stars[0] = star;
+
+    global_tokens = new Token[8];
+    for (int i=0; i<8; ++i) {
+      global_tokens[i] = new Token(320-i*25, 260);
+    }
   }
 
   current_level = level;
@@ -97,6 +120,7 @@ void load(int level) {
   planet_graphics = createGraphics(186, 186);
   planet_shading = loadImage("planet-shading.png");
   helmet_image = loadImage("helmet.png");
+  star_image = loadImage("star.png");
   token_image = loadImage("token.png");
 
   load_level(level);
@@ -128,18 +152,29 @@ float lerpAngle(float theta1, float theta2, float fraction) {
   return lerp(theta1, theta2, fraction);
 }
 
-Planet find_closest_planet(float x, float y) {
-  Planet closest_planet = null;
+Mass find_closest_mass(float x, float y) {
+  Mass closest_mass = null;
   float closest_distance_squared = 0.0; // only valid when closest_planet != null
+
   for (int i=0; i<global_planets.length; ++i) {
-    Planet planet = global_planets[i];
-    float distance_squared = sq(x - planet.x) + sq(y - planet.y);
-    if (closest_planet == null || distance_squared < closest_distance_squared) {
-      closest_planet = planet;
+    Mass mass = global_planets[i];
+    float distance_squared = sq(x - mass.x) + sq(y - mass.y);
+    if (closest_mass == null || distance_squared < closest_distance_squared) {
+      closest_mass = mass;
       closest_distance_squared = distance_squared;
     }
   }
-  return closest_planet;
+
+  for (int i=0; i<global_stars.length; ++i) {
+    Mass mass = global_stars[i];
+    float distance_squared = sq(x - mass.x) + sq(y - mass.y);
+    if (closest_mass == null || distance_squared < closest_distance_squared) {
+      closest_mass = mass;
+      closest_distance_squared = distance_squared;
+    }
+  }
+
+  return closest_mass;
 }
 
 boolean are_circles_colliding(float x1, float y1, float r1, float x2, float y2, float r2) {
@@ -173,14 +208,25 @@ Token find_colliding_token(float x, float y, float r) {
 // force on a 1 kilogram object, in newtons/kilogram
 PVector gravity_force_at(float x, float y) {
   PVector force = new PVector();
+
   for (int i=0; i<global_planets.length; ++i) {
-    Planet planet = global_planets[i];
-    PVector towards_planet = new PVector(planet.x - x, planet.y - y);
-    towards_planet.normalize();
-    float r_squared = sq(planet.x - x) + sq(planet.y - y);
-    float gravity = planet.mass / r_squared;
-    towards_planet.mult(gravity);
-    force.add(towards_planet);
+    Mass mass = global_planets[i];
+    PVector towards_mass = new PVector(mass.x - x, mass.y - y);
+    towards_mass.normalize();
+    float r_squared = sq(mass.x - x) + sq(mass.y - y);
+    float gravity = mass.mass / r_squared;
+    towards_mass.mult(gravity);
+    force.add(towards_mass);
+  }
+
+  for (int i=0; i<global_stars.length; ++i) {
+    Mass mass = global_stars[i];
+    PVector towards_mass = new PVector(mass.x - x, mass.y - y);
+    towards_mass.normalize();
+    float r_squared = sq(mass.x - x) + sq(mass.y - y);
+    float gravity = mass.mass / r_squared;
+    towards_mass.mult(gravity);
+    force.add(towards_mass);
   }
 
   force.mult(gravity_constant);
@@ -384,8 +430,8 @@ class Player {
       x += velocity.x;
       y += velocity.y;
 
-      Planet closest_planet = find_closest_planet(x, y);
-      target_theta = atan2(y-closest_planet.y, x-closest_planet.x)+TAU/4;
+      Mass closest_mass = find_closest_mass(x, y);
+      target_theta = atan2(y-closest_mass.y, x-closest_mass.x)+TAU/4;
       theta = lerpAngle(theta, target_theta, 0.1);
     } else {
       // project the walking speed onto the planet, in radians
@@ -457,11 +503,14 @@ class Player {
   }
 }
 
-class Planet {
+class Mass {
   float x; // pixels
   float y; // pixels
   float r; // pixels
   float mass; // kilograms?
+}
+
+class Planet extends Mass {
   PImage img;
   float speed; // turns/second
   float theta = 0.0; // radians
@@ -493,6 +542,22 @@ class Planet {
     //pushMatrix();
     translate(x, y);
     image(planet_graphics, 0, 0, 2*r, 2*r);
+    translate(-x, -y); // popMatrix();
+  }
+}
+
+class Star extends Mass {
+  Star(float x_, float y_, float r_) {
+    x = x_;
+    y = y_;
+    r = r_;
+    mass = 4*PI*r*r*r/3;
+  }
+
+  void draw() {
+    //pushMatrix();
+    translate(x, y);
+    image(star_image, 0, 0, 2*r, 2*r);
     translate(-x, -y); // popMatrix();
   }
 }
@@ -595,6 +660,10 @@ void draw() {
     for (int i=0; i<global_planets.length; ++i) {
       Planet planet = global_planets[i];
       planet.draw();
+    }
+    for (int i=0; i<global_stars.length; ++i) {
+      Star star = global_stars[i];
+      star.draw();
     }
     for (int i=0; i<global_tokens.length; ++i) {
       Token token = global_tokens[i];
