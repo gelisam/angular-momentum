@@ -9,9 +9,13 @@ int PLAYING_PHASE = 3;
 int DYING_IN_PHASE = 4;
 int DYING_LOADING_PHASE = 5;
 int DYING_OUT_PHASE = 6;
+int WINNING_IN_PHASE = 7;
+int WINNING_LOADING_PHASE = 8;
+int WINNING_OUT_PHASE = 9;
 int loading_phase = SPLASH_IN_PHASE;
 PImage title_image;
 float overlay_alpha = 255.0;
+float camera_theta = 0.0;
 
 boolean left_pressed = false;
 boolean right_pressed = false;
@@ -25,7 +29,7 @@ PImage helmet_image;
 int current_level = -1;
 Player global_player;
 Planet[] global_planets;
-Text global_text;
+Text global_text = null;
 
 void start_on(Planet planet) {
   global_player = new Player(planet.x, planet.y - planet.r);
@@ -33,8 +37,9 @@ void start_on(Planet planet) {
 }
 
 void load_level(int level) {
-  String level_name = "LEVEL " + level;
-  if (level == 1) {
+  if (level == 0) {
+    global_planets = new Planet[0];
+  } else if (level == 1) {
     Planet planet = new Planet(320, 180, 100, "green-blue-planet.png", 0.1);
     start_on(planet);
 
@@ -50,8 +55,12 @@ void load_level(int level) {
     global_planets[1] = right_planet;
   }
 
-  global_text = new Text(level_name, 0.15);
   current_level = level;
+}
+
+void next_level() {
+  global_text = new Text("LEVEL " + (current_level + 1), 0.15);
+  loading_phase = WINNING_IN_PHASE;
 }
 
 void setup() {
@@ -68,7 +77,7 @@ void load() {
   planet_shading = loadImage("planet-shading.png");
   helmet_image = loadImage("helmet.png");
 
-  load_level(2);
+  load_level(0);
 
   textSize(32);
   textAlign(CENTER);
@@ -391,8 +400,6 @@ class Player {
     }
 
     popMatrix();
-
-    draw_helmet_power();
   }
 }
 
@@ -439,6 +446,12 @@ class Planet {
 void draw() {
   float dt = 1.0/60; // seconds (assumes 60fps)
 
+  if (global_text != null) {
+    if (!global_text.update(dt)) {
+      global_text = null;
+    }
+  }
+
   if (loading_phase == SPLASH_IN_PHASE) {
     background(0);
     image(title_image, 325, 180);
@@ -453,10 +466,15 @@ void draw() {
     rect(0, 0, 640, 360);
   } else if (loading_phase == SPLASH_LOADING_PHASE) {
     load();
+    global_text = new Text("LEVEL " + (current_level + 1), 0.15);
     loading_phase = SPLASH_OUT_PHASE;
   } else if (loading_phase == DYING_LOADING_PHASE) {
     load_level(current_level);
     loading_phase = DYING_OUT_PHASE;
+  } else if (loading_phase == WINNING_LOADING_PHASE) {
+    load_level(current_level+1);
+    camera_theta = -TAU/8;
+    loading_phase = WINNING_OUT_PHASE;
   } else if (loading_phase == SPLASH_OUT_PHASE) {
     background(0);
     image(title_image, 325, 180);
@@ -464,7 +482,7 @@ void draw() {
     overlay_alpha += dt * 255 / 1.0;
     if (overlay_alpha > 255.0) {
       overlay_alpha = 255.0;
-      loading_phase = PLAYING_PHASE;
+      loading_phase = WINNING_LOADING_PHASE;
     }
 
     fill(0, 0, 0, overlay_alpha);
@@ -477,21 +495,40 @@ void draw() {
       planet.update(dt);
     }
     global_player.update(dt, dir, up_pressed || w_pressed);
-    if (global_text != null) {
-      if (!global_text.update(dt)) {
-        global_text = null;
+
+    background(0);
+
+    pushMatrix();
+
+    float x_ = -320;
+    float y_ = 180;
+    translate(x_, y_);
+    rotate(camera_theta);
+    translate(-x_, -y_);
+
+    if (loading_phase == WINNING_IN_PHASE) {
+      camera_theta += dt * (TAU/8) / 4.0;
+      if (camera_theta > TAU/8) {
+        camera_theta = TAU/8;
+        loading_phase = WINNING_LOADING_PHASE;
+      }
+    } else if (loading_phase == WINNING_OUT_PHASE) {
+      camera_theta += dt * (TAU/8) / 4.0;
+      if (camera_theta > 0.0) {
+        camera_theta = 0.0;
+        loading_phase = PLAYING_PHASE;
       }
     }
 
-    background(0);
     for (int i=0; i<global_planets.length; ++i) {
       Planet planet = global_planets[i];
       planet.draw();
     }
     global_player.draw();
-    if (global_text != null) {
-      global_text.draw();
-    }
+
+    popMatrix();
+
+    global_player.draw_helmet_power();
 
     if (loading_phase == DYING_IN_PHASE) {
       overlay_alpha += dt * 255 / 0.25;
@@ -512,6 +549,10 @@ void draw() {
       fill(225, 16, 16, overlay_alpha);
       rect(0, 0, 640, 360);
     }
+  }
+
+  if (global_text != null) {
+    global_text.draw();
   }
 }
 
@@ -538,6 +579,10 @@ void keyReleased() {
     right_pressed = false;
   } else if (keyCode == UP) {
     up_pressed = false;
+    if (d_pressed && loading_phase == PLAYING_PHASE) {
+      // debug code
+      next_level();
+    }
   } else if (key == 'a') {
     a_pressed = false;
   } else if (key == 'd') {
