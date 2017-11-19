@@ -26,9 +26,11 @@ boolean w_pressed = false;
 PGraphics planet_graphics;
 PImage planet_shading;
 PImage helmet_image;
+PImage token_image;
 int current_level = -1;
 Player global_player;
 Planet[] global_planets;
+Token[] global_tokens;
 Text global_text = null;
 
 void start_on(Planet planet) {
@@ -39,12 +41,20 @@ void start_on(Planet planet) {
 void load_level(int level) {
   if (level == 0) {
     global_planets = new Planet[0];
+    global_tokens = new Token[0];
   } else if (level == 1) {
     Planet planet = new Planet(320, 180, 100, "green-blue-planet.png", 0.1);
     start_on(planet);
 
     global_planets = new Planet[1];
     global_planets[0] = planet;
+
+    global_tokens = new Token[12];
+    float r = planet.r + 3*global_player.r;
+    for (int i=0; i<12; ++i) {
+      float theta = i * TAU/12;
+      global_tokens[i] = new Token(planet.x + r*cos(theta), planet.y + r*sin(theta));
+    }
   } else if (level == 2) {
     Planet left_planet = new Planet(215, 180, 50, "beach-planet.png", 0.1);
     Planet right_planet = new Planet(425, 180, 50, "purple-planet.png", 0.1);
@@ -53,6 +63,9 @@ void load_level(int level) {
     global_planets = new Planet[2];
     global_planets[0] = left_planet;
     global_planets[1] = right_planet;
+
+    global_tokens = new Token[1];
+    global_tokens[0] = new Token(320, 180);
   }
 
   current_level = level;
@@ -76,6 +89,7 @@ void load() {
   planet_graphics = createGraphics(186, 186);
   planet_shading = loadImage("planet-shading.png");
   helmet_image = loadImage("helmet.png");
+  token_image = loadImage("token.png");
 
   load_level(0);
 
@@ -129,6 +143,18 @@ Planet find_colliding_planet(float x, float y, float r) {
     Planet planet = global_planets[i];
     if (are_circles_colliding(x, y, r, planet.x, planet.y, planet.r)) {
       return planet;
+    }
+  }
+
+  return null;
+}
+
+// null if not colliding
+Token find_colliding_token(float x, float y, float r) {
+  for (int i=0; i<global_tokens.length; ++i) {
+    Token token = global_tokens[i];
+    if (!token.collected && are_circles_colliding(x, y, r, token.x, token.y, token.r)) {
+      return token;
     }
   }
 
@@ -314,6 +340,11 @@ class Player {
       }
     }
 
+    Token token = find_colliding_token(x, y, r);
+    if (token != null) {
+      token.collected = true;
+    }
+
     if (attached_planet != null && !holding_up) {
       helmet_power = helmet_duration;
     }
@@ -443,6 +474,24 @@ class Planet {
   }
 }
 
+class Token {
+  float x; // pixels
+  float y; // pixels
+  float r = 8; // pixels
+  boolean collected = false;
+
+  Token(float x_, float y_) {
+    x = x_;
+    y = y_;
+  }
+
+  void draw() {
+    if (!collected) {
+      image(token_image, x, y, 2*r, 2*r);
+    }
+  }
+}
+
 void draw() {
   float dt = 1.0/60; // seconds (assumes 60fps)
 
@@ -523,6 +572,10 @@ void draw() {
     for (int i=0; i<global_planets.length; ++i) {
       Planet planet = global_planets[i];
       planet.draw();
+    }
+    for (int i=0; i<global_tokens.length; ++i) {
+      Token token = global_tokens[i];
+      token.draw();
     }
     global_player.draw();
 
