@@ -16,6 +16,9 @@ float overlay_alpha = 255.0;
 boolean left_pressed = false;
 boolean right_pressed = false;
 boolean up_pressed = false;
+boolean a_pressed = false;
+boolean d_pressed = false;
+boolean w_pressed = false;
 PGraphics planet_graphics;
 PImage planet_shading;
 PImage helmet_image;
@@ -467,12 +470,13 @@ void draw() {
     fill(0, 0, 0, overlay_alpha);
     rect(0, 0, 640, 360);
   } else {
-    int dir = (left_pressed ? -1 : 0) + (right_pressed ? 1 : 0); // -1, 0, or 1
+    int dir = ((left_pressed || a_pressed) ? -1 : 0)
+      + ((right_pressed || d_pressed) ? 1 : 0); // -1, 0, or 1
     for (int i=0; i<global_planets.length; ++i) {
       Planet planet = global_planets[i];
       planet.update(dt);
     }
-    global_player.update(dt, dir, up_pressed);
+    global_player.update(dt, dir, up_pressed || w_pressed);
     if (global_text != null) {
       if (!global_text.update(dt)) {
         global_text = null;
@@ -518,6 +522,12 @@ void keyPressed() {
     right_pressed = true;
   } else if (keyCode == UP) {
     up_pressed = true;
+  } else if (key == 'a') {
+    a_pressed = true;
+  } else if (key == 'd') {
+    d_pressed = true;
+  } else if (key == 'w') {
+    w_pressed = true;
   }
 }
 
@@ -528,6 +538,12 @@ void keyReleased() {
     right_pressed = false;
   } else if (keyCode == UP) {
     up_pressed = false;
+  } else if (key == 'a') {
+    a_pressed = false;
+  } else if (key == 'd') {
+    d_pressed = false;
+  } else if (key == 'w') {
+    w_pressed = false;
   } else if (key == 'r') {
     if (loading_phase == PLAYING_PHASE) {
       overlay_alpha = 0.0;
