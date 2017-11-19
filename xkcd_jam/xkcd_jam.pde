@@ -204,12 +204,12 @@ class Eyes {
   void draw() {
     boolean blinking = (t % 3 >= 2.8);
     if (!blinking) {
-      pushMatrix();
+      //pushMatrix()
       translate(offset*8, 0);
       fill(255, 255, 255);
       ellipse(-8, 0, 8, 16);
       ellipse( 8, 0, 8, 16);
-      popMatrix();
+      translate(-offset*8, 0); // popMatrix()
     }
   }
 }
@@ -369,18 +369,18 @@ class Player {
     scale(r/32);
     rotate(theta);
 
-    pushMatrix();
+    //pushMatrix()
     translate(0, 28);
     back_foot.draw();
-    popMatrix();
+    translate(0, -28); // popMatrix()
 
     draw_body();
     eyes.draw();
 
-    pushMatrix();
+    //pushMatrix()
     translate(0, 30);
     front_foot.draw();
-    popMatrix();
+    translate(0, -30); // popMatrix()
 
     if (wearing_helmet) {
       boolean blinking = (helmet_power > 0.5) ? false
@@ -429,10 +429,10 @@ class Planet {
     planet_graphics.blend(planet_shading, 0, 0, 186, 186, 0, 0, 186, 186, OVERLAY);
     planet_graphics.endDraw();
 
-    pushMatrix();
+    //pushMatrix();
     translate(x, y);
     image(planet_graphics, 0, 0, 2*r, 2*r);
-    popMatrix();
+    translate(-x, -y); // popMatrix();
   }
 }
 
