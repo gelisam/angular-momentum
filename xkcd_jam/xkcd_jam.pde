@@ -85,15 +85,21 @@ void setup() {
   noStroke();
   imageMode(CENTER);
   loop();
+
+  if (current_level != -1) {
+    // for debugging, skip the intro and jump right to chosen level
+    load(current_level);
+    loading_phase = PLAYING_PHASE;
+  }
 }
 
-void load() {
+void load(int level) {
   planet_graphics = createGraphics(186, 186);
   planet_shading = loadImage("planet-shading.png");
   helmet_image = loadImage("helmet.png");
   token_image = loadImage("token.png");
 
-  load_level(0);
+  load_level(level);
 
   textSize(16);
   textSize(32);
@@ -531,7 +537,7 @@ void draw() {
     fill(0, 0, 0, overlay_alpha);
     rect(0, 0, 640, 360);
   } else if (loading_phase == SPLASH_LOADING_PHASE) {
-    load();
+    load(0);
     global_text = new Text("LEVEL " + (current_level + 1), 0.15);
     loading_phase = SPLASH_OUT_PHASE;
   } else if (loading_phase == DYING_LOADING_PHASE) {
