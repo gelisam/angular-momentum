@@ -10,6 +10,7 @@ PImage planet_shading;
 PImage helmet_image;
 Player global_player;
 Planet[] global_planets;
+Text global_text;
 
 void start_on(Planet planet) {
   global_player = new Player(planet.x, planet.y - planet.r);
@@ -17,7 +18,10 @@ void start_on(Planet planet) {
 }
 
 void load_level(int level) {
+  String level_name = "LEVEL " + level;
   if (level == 1) {
+    level_name = "ANGULAR MOMENTUM";
+
     Planet planet = new Planet(320, 180, 100, "green-blue-planet.png", 0.1);
     start_on(planet);
 
@@ -32,6 +36,8 @@ void load_level(int level) {
     global_planets[0] = left_planet;
     global_planets[1] = right_planet;
   }
+
+  global_text = new Text(level_name, 0.25);
 }
 
 void setup() {
@@ -43,6 +49,8 @@ void setup() {
 
   size(640, 360);
   noStroke();
+  textSize(32);
+  textAlign(CENTER);
   imageMode(CENTER);
   loop();
 }
@@ -118,6 +126,39 @@ PVector gravity_force_at(float x, float y) {
     force.mult(min_gravity);
   }
   return force;
+}
+
+class Text {
+  float theta = -TAU/8; // radians
+  float speed; // quarter turns/second
+  String txt;
+
+  Text(String txt_, float speed_) {
+    txt = txt_;
+    speed = speed_;
+  }
+
+  // false if the Text should be deleted
+  boolean update(float dt) {
+    theta += dt * speed * TAU/4;
+    return (theta < TAU/8);
+  }
+
+  void draw() {
+    float x = 0;
+    float y = 180;
+    pushMatrix();
+    translate(x, y);
+    rotate(theta);
+    translate(-x, -y);
+
+    fill(128, 128, 128, 128);
+    text(txt, 321, 181);
+
+    fill(255, 255, 255);
+    text(txt, 320, 180);
+    popMatrix();
+  }
 }
 
 class Eyes {
@@ -384,6 +425,11 @@ void draw() {
     planet.update(dt);
   }
   global_player.update(dt, dir, up_pressed);
+  if (global_text != null) {
+    if (!global_text.update(dt)) {
+      global_text = null;
+    }
+  }
 
   background(0);
   for (int i=0; i<global_planets.length; ++i) {
@@ -391,6 +437,9 @@ void draw() {
     planet.draw();
   }
   global_player.draw();
+  if (global_text != null) {
+    global_text.draw();
+  }
 }
 
 void keyPressed() {
