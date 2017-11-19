@@ -368,6 +368,7 @@ class Player {
   boolean wearing_helmet = false;
   float r = 16; // pixels
   float helmet_power = 0.0; // seconds
+  float time_stuck_in_orbit = 0.0; // seconds
   int collected_tokens;
   float last_x;
   float last_y;
@@ -414,13 +415,21 @@ class Player {
     if (holding_up && helmet_power > 0.0) {
       helmet_power -= dt;
       wearing_helmet = true;
+      time_stuck_in_orbit = 0.0;
       detach();
-    } else {
+    } else if (attached_planet == null) {
       wearing_helmet = false;
       Planet planet = find_colliding_planet(x, y, r);
       if (planet != null) {
         attach(planet);
+      } else {
+        time_stuck_in_orbit += dt;
+        if (time_stuck_in_orbit > 8.0 && helmet_power <= 0.0 && global_text == null) {
+          global_text = new Text("Stuck in orbit?\nPress R to restart", 0.15);
+        }
       }
+    } else {
+      time_stuck_in_orbit = 0.0;
     }
 
     Star star = find_colliding_star(x, y, r);
