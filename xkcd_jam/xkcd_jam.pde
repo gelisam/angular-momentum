@@ -1,4 +1,6 @@
 float gravity_constant = 0.001;
+float walking_speed = 20; // pixels/second
+float momentum_transfer = 100.0;
 float min_gravity = 0.1; // otherwise reaching escape velocity means game over
 float helmet_duration = 1.0;
 
@@ -365,7 +367,6 @@ class Player {
   float target_theta = 0.0; // radians
   boolean wearing_helmet = false;
   float r = 16; // pixels
-  float walking_speed = 20; // pixels/second
   float helmet_power = 0.0; // seconds
   int collected_tokens;
   float last_x;
@@ -468,6 +469,9 @@ class Player {
       float dx = dt * walking_speed;
       float dtheta = atan2(dx, attached_planet.r);
       attached_theta += dir*dtheta;
+
+      // rob the planet of its angular momentum
+      attached_planet.speed -= momentum_transfer * dir * walking_speed / attached_planet.mass;
 
       place_on_attached_planet();
     }
