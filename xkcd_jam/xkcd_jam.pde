@@ -39,7 +39,7 @@ void load_level(int level) {
     global_planets[1] = right_planet;
   }
 
-  global_text = new Text(level_name, 0.25);
+  global_text = new Text(level_name, 0.15);
 }
 
 void setup() {
@@ -152,7 +152,7 @@ class Text {
   }
 
   void draw() {
-    float x = 0;
+    float x = -320;
     float y = 180;
     pushMatrix();
     translate(x, y);
