@@ -209,6 +209,9 @@ class Player {
     if (attached_planet == null) {
       attached_planet = planet;
       attached_theta = atan2(y-planet.y, x-planet.x) - attached_planet.theta;
+
+      // fix bouncy bug
+      place_on_attached_planet();
     }
   }
 
@@ -218,6 +221,15 @@ class Player {
       velocity.x = x - last_x;
       velocity.y = y - last_y;
     }
+  }
+
+  void place_on_attached_planet() {
+
+    float r_ = attached_planet.r + r;
+    float theta_ = attached_planet.theta + attached_theta;
+    x = attached_planet.x + r_ * cos(theta_);
+    y = attached_planet.y + r_ * sin(theta_);
+    theta = theta_+TAU/4;
   }
 
   void update(float dt, int dir, boolean holding_up) {
@@ -263,11 +275,7 @@ class Player {
       float dtheta = atan2(dx, attached_planet.r);
       attached_theta += dir*dtheta;
 
-      float r_ = attached_planet.r + r;
-      float theta_ = attached_planet.theta + attached_theta;
-      x = attached_planet.x + r_ * cos(theta_);
-      y = attached_planet.y + r_ * sin(theta_);
-      theta = theta_+TAU/4;
+      place_on_attached_planet();
     }
   }
 
