@@ -56,16 +56,18 @@ void load_level(int level) {
       global_tokens[i] = new Token(planet.x + r*cos(theta), planet.y + r*sin(theta));
     }
   } else if (level == 2) {
-    Planet left_planet = new Planet(215, 180, 50, "beach-planet.png", 0.1);
-    Planet right_planet = new Planet(425, 180, 50, "purple-planet.png", 0.1);
-    start_on(left_planet);
-
-    global_planets = new Planet[2];
-    global_planets[0] = left_planet;
-    global_planets[1] = right_planet;
-
-    global_tokens = new Token[1];
-    global_tokens[0] = new Token(320, 180);
+    float dx = 100;
+    float r = 50;
+    global_planets = new Planet[3];
+    global_tokens = new Token[4];
+    global_tokens[0] = new Token(320-3*dx, 180);
+    global_planets[0] = new Planet(320-2*dx, 180, r, "beach-planet.png", 0.1);
+    global_tokens[1] = new Token(320-1*dx, 180);
+    global_planets[1] = new Planet(320, 180, r, "purple-planet.png", -0.1);
+    global_tokens[2] = new Token(320+1*dx, 180);
+    global_planets[2] = new Planet(320+2*dx, 180, r, "red-planet.png", 0.1);
+    global_tokens[3] = new Token(320+3*dx, 180);
+    start_on(global_planets[0]);
   }
 
   current_level = level;
