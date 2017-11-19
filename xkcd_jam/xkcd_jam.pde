@@ -2,9 +2,16 @@ float gravity_constant = 0.001;
 float min_gravity = 0.1; // otherwise reaching escape velocity means game over
 float helmet_duration = 1.0;
 
-int loading_phase = 0;
+int SPLASH_IN_PHASE = 0;
+int SPLASH_LOADING_PHASE = 1;
+int SPLASH_OUT_PHASE = 2;
+int PLAYING_PHASE = 3;
+int DYING_IN_PHASE = 4;
+int DYING_LOADING_PHASE = 5;
+int DYING_OUT_PHASE = 6;
+int loading_phase = SPLASH_IN_PHASE;
 PImage title_image;
-float title_alpha = 0.0;
+float overlay_alpha = 255.0;
 
 boolean left_pressed = false;
 boolean right_pressed = false;
@@ -12,6 +19,7 @@ boolean up_pressed = false;
 PGraphics planet_graphics;
 PImage planet_shading;
 PImage helmet_image;
+int current_level = -1;
 Player global_player;
 Planet[] global_planets;
 Text global_text;
@@ -40,6 +48,7 @@ void load_level(int level) {
   }
 
   global_text = new Text(level_name, 0.15);
+  current_level = level;
 }
 
 void setup() {
@@ -427,32 +436,35 @@ class Planet {
 void draw() {
   float dt = 1.0/60; // seconds (assumes 60fps)
 
-  if (loading_phase == 0) {
+  if (loading_phase == SPLASH_IN_PHASE) {
     background(0);
     image(title_image, 325, 180);
 
-    title_alpha += dt * 255 / 1.0;
-    if (title_alpha > 255.0) {
-      title_alpha = 255;
-      loading_phase = 1;
+    overlay_alpha -= dt * 255 / 1.0;
+    if (overlay_alpha < 0.0) {
+      overlay_alpha = 0.0;
+      loading_phase = SPLASH_LOADING_PHASE;
     }
 
-    fill(0, 0, 0, 255-title_alpha);
+    fill(0, 0, 0, overlay_alpha);
     rect(0, 0, 640, 360);
-  } else if (loading_phase == 1) {
+  } else if (loading_phase == SPLASH_LOADING_PHASE) {
     load();
-    loading_phase = 2;
-  } else if (loading_phase == 2) {
+    loading_phase = SPLASH_OUT_PHASE;
+  } else if (loading_phase == DYING_LOADING_PHASE) {
+    load_level(current_level);
+    loading_phase = DYING_OUT_PHASE;
+  } else if (loading_phase == SPLASH_OUT_PHASE) {
     background(0);
     image(title_image, 325, 180);
 
-    title_alpha -= dt * 255 / 1.0;
-    if (title_alpha < 0.0) {
-      title_alpha = 0.0;
-      loading_phase = 3;
+    overlay_alpha += dt * 255 / 1.0;
+    if (overlay_alpha > 255.0) {
+      overlay_alpha = 255.0;
+      loading_phase = PLAYING_PHASE;
     }
 
-    fill(0, 0, 0, 255-title_alpha);
+    fill(0, 0, 0, overlay_alpha);
     rect(0, 0, 640, 360);
   } else {
     int dir = (left_pressed ? -1 : 0) + (right_pressed ? 1 : 0); // -1, 0, or 1
@@ -476,6 +488,26 @@ void draw() {
     if (global_text != null) {
       global_text.draw();
     }
+
+    if (loading_phase == DYING_IN_PHASE) {
+      overlay_alpha += dt * 255 / 0.25;
+      if (overlay_alpha > 255.0) {
+        overlay_alpha = 255;
+        loading_phase = DYING_LOADING_PHASE;
+      }
+
+      fill(225, 16, 16, overlay_alpha);
+      rect(0, 0, 640, 360);
+    } else if (loading_phase == DYING_OUT_PHASE) {
+      overlay_alpha -= dt * 255 / 1.0;
+      if (overlay_alpha < 0.0) {
+        overlay_alpha = 0.0;
+        loading_phase = PLAYING_PHASE;
+      }
+
+      fill(225, 16, 16, overlay_alpha);
+      rect(0, 0, 640, 360);
+    }
   }
 }
 
@@ -496,5 +528,10 @@ void keyReleased() {
     right_pressed = false;
   } else if (keyCode == UP) {
     up_pressed = false;
+  } else if (key == 'r') {
+    if (loading_phase == PLAYING_PHASE) {
+      overlay_alpha = 0.0;
+      loading_phase = DYING_IN_PHASE;
+    }
   }
 }
