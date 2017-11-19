@@ -14,6 +14,9 @@ int DYING_OUT_PHASE = 6;
 int WINNING_IN_PHASE = 7;
 int WINNING_LOADING_PHASE = 8;
 int WINNING_OUT_PHASE = 9;
+int CREDITS_IN_PHASE = 10;
+int CREDITS_LOADING_PHASE = 11;
+int CREDITS_PHASE = 12;
 int loading_phase = SPLASH_IN_PHASE;
 PImage title_image;
 float overlay_alpha = 255.0;
@@ -31,6 +34,7 @@ PImage helmet_image;
 PImage star_image;
 PImage token_image;
 int current_level = -1;
+int last_level = 4;
 Player global_player;
 Planet[] global_planets;
 Star[] global_stars;
@@ -112,6 +116,15 @@ void load_level(int level) {
       global_tokens[i] = new Token(320 + 200*cos(theta), 180 + 150*sin(theta));
       global_tokens[i+6] = new Token(320 + 200*cos(theta), 180 - 150*sin(theta));
     }
+  } else {
+    Planet planet = new Planet(320, 180, 100, "green-blue-planet.png", 0.1);
+    start_on(planet);
+
+    global_planets = new Planet[1];
+    global_planets[0] = planet;
+
+    global_stars = new Star[0];
+    global_tokens = new Token[0];
   }
 
   global_masses = new Mass[global_planets.length + global_stars.length];
@@ -133,8 +146,13 @@ void restart_level() {
 }
 
 void next_level() {
-  global_text = new Text("LEVEL " + (current_level + 1), 0.15);
-  loading_phase = WINNING_IN_PHASE;
+  if (current_level < last_level) {
+    global_text = new Text("LEVEL " + (current_level + 1), 0.15);
+    loading_phase = WINNING_IN_PHASE;
+  } else {
+    overlay_alpha = 0.0;
+    loading_phase = CREDITS_IN_PHASE;
+  }
 }
 
 void setup() {
@@ -265,13 +283,14 @@ PVector gravity_force_at(float x, float y) {
 }
 
 class Text {
-  float theta = -TAU/8; // radians
+  float theta; // radians
   float speed; // quarter turns/second
   String txt;
 
   Text(String txt_, float speed_) {
     txt = txt_;
     speed = speed_;
+    theta = (speed > 0) ? (-TAU/8) : (TAU/8);
   }
 
   // false if the Text should be deleted
@@ -655,6 +674,11 @@ void draw() {
     load_level(current_level+1);
     camera_theta = -TAU/8;
     loading_phase = WINNING_OUT_PHASE;
+  } else if (loading_phase == CREDITS_LOADING_PHASE) {
+    load_level(current_level+1);
+    camera_theta = -TAU/8;
+    global_text = new Text("ANGULAR MOMENTUM\nmade in 48h for the xkcd game jam\nby Samuel Gélineau\n\n\nTHE END", -0.05);
+    loading_phase = CREDITS_PHASE;
   } else if (loading_phase == SPLASH_OUT_PHASE) {
     background(0);
     image(title_image, 325, 180);
@@ -698,6 +722,17 @@ void draw() {
         camera_theta = 0.0;
         loading_phase = PLAYING_PHASE;
       }
+    } else if (loading_phase == CREDITS_IN_PHASE) {
+      camera_theta += dt * (TAU/8) / 4.0;
+      if (camera_theta > TAU/8) {
+        camera_theta = TAU/8;
+        loading_phase = CREDITS_LOADING_PHASE;
+      }
+    } else if (loading_phase == CREDITS_PHASE) {
+      camera_theta += dt * (TAU/8) / 4.0;
+      if (camera_theta > TAU/8) {
+        camera_theta = -TAU/8;
+      }
     }
 
     for (int i=0; i<global_planets.length; ++i) {
@@ -713,11 +748,15 @@ void draw() {
       token.draw();
     }
     global_player.draw();
-    global_player.draw_collected_tokens();
+    if (loading_phase != CREDITS_PHASE) {
+      global_player.draw_collected_tokens();
+    }
 
     popMatrix();
 
-    global_player.draw_helmet_power();
+    if (loading_phase != CREDITS_LOADING_PHASE && loading_phase != CREDITS_PHASE) {
+      global_player.draw_helmet_power();
+    }
 
     if (loading_phase == DYING_IN_PHASE) {
       overlay_alpha += dt * 255 / 0.25;
@@ -736,6 +775,17 @@ void draw() {
       }
 
       fill(225, 16, 16, overlay_alpha);
+      rect(0, 0, 640, 360);
+    } else if (loading_phase == CREDITS_IN_PHASE) {
+      overlay_alpha += dt * 255 / 2.0;
+      if (overlay_alpha > 255) {
+        overlay_alpha = 255;
+      }
+
+      fill(0, 0, 0, overlay_alpha);
+      rect(0, 0, 640, 360);
+    } else if (loading_phase == CREDITS_PHASE) {
+      fill(0, 0, 0, 128);
       rect(0, 0, 640, 360);
     }
   }
