@@ -1,3 +1,5 @@
+![screenshot](screenshot.png)
+
 # Angular Momentum
 
 A game loosely based on [xkcd #162](https://xkcd.com/162/), for the [2017 xkcd game jam](https://itch.io/jam/xkcdgamejam).
