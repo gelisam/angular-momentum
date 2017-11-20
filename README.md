@@ -7,3 +7,6 @@ Helmet image based on https://openclipart.org/detail/176334/space-helmet, everyt
 
 ## Code
 Built with [Processing](https://processing.org).
+
+## Sounds
+Made with [BFXR](https://www.bfxr.net/).

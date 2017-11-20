@@ -1,3 +1,5 @@
+import processing.sound.*;
+
 float gravity_constant = 0.001;
 float walking_speed = 20; // pixels/second
 float momentum_transfer = 1.0;
@@ -35,6 +37,10 @@ PImage planet_shading;
 PImage helmet_image;
 PImage star_image;
 PImage token_image;
+SoundFile helmet_sound;
+SoundFile token_sound;
+SoundFile win_sound;
+SoundFile fire_sound;
 
 int current_level = -1;
 int last_level = 4;
@@ -145,12 +151,15 @@ void load_level(int level) {
 
 void restart_level() {
   if (loading_phase == PLAYING_PHASE) {
+    fire_sound.play();
     overlay_alpha = 0.0;
     loading_phase = DYING_IN_PHASE;
   }
 }
 
 void next_level() {
+  win_sound.play();
+
   if (current_level < last_level) {
     global_text = new Text("LEVEL " + (current_level + 1), 0.15);
     loading_phase = WINNING_IN_PHASE;
@@ -182,6 +191,10 @@ void load(int level) {
   helmet_image = loadImage("helmet.png");
   star_image = loadImage("star.png");
   token_image = loadImage("token.png");
+  helmet_sound = new SoundFile(this, "helmet.wav");
+  token_sound = new SoundFile(this, "token.wav");
+  win_sound = new SoundFile(this, "win.wav");
+  fire_sound = new SoundFile(this, "fire.wav");
 
   load_level(level);
 
@@ -439,10 +452,16 @@ class Player {
   void update(float dt, int dir, boolean holding_up) {
     if (holding_up && helmet_power > 0.0) {
       helmet_power -= dt;
+      if (!wearing_helmet) {
+        helmet_sound.play();
+      }
       wearing_helmet = true;
       time_stuck_in_orbit = 0.0;
       detach();
     } else if (attached_planet == null) {
+      if (wearing_helmet) {
+        helmet_sound.stop();
+      }
       wearing_helmet = false;
       Planet planet = find_colliding_planet(x, y, r);
       if (planet != null) {
@@ -466,7 +485,9 @@ class Player {
     if (token != null) {
       token.collected = true;
       ++collected_tokens;
-      if (collected_tokens >= global_tokens.length) {
+      if (collected_tokens < global_tokens.length) {
+        token_sound.play();
+      } else {
         next_level();
       }
     }
