@@ -18,6 +18,7 @@ int CREDITS_IN_PHASE = 10;
 int CREDITS_LOADING_PHASE = 11;
 int CREDITS_PHASE = 12;
 int loading_phase = SPLASH_IN_PHASE;
+
 PImage title_image;
 float overlay_alpha = 255.0;
 float camera_theta = 0.0;
@@ -28,13 +29,16 @@ boolean up_pressed = false;
 boolean a_pressed = false;
 boolean d_pressed = false;
 boolean w_pressed = false;
+
 PGraphics planet_graphics;
 PImage planet_shading;
 PImage helmet_image;
 PImage star_image;
 PImage token_image;
+
 int current_level = -1;
 int last_level = 4;
+
 Player global_player;
 Planet[] global_planets;
 Star[] global_stars;
