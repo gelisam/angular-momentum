@@ -37,6 +37,7 @@ PImage planet_shading;
 PImage helmet_image;
 PImage star_image;
 PImage token_image;
+SoundFile music;
 SoundFile helmet_sound;
 SoundFile token_sound;
 SoundFile win_sound;
@@ -191,6 +192,7 @@ void load(int level) {
   helmet_image = loadImage("helmet.png");
   star_image = loadImage("star.png");
   token_image = loadImage("token.png");
+  music = new SoundFile(this, "music.wav");
   helmet_sound = new SoundFile(this, "helmet.wav");
   token_sound = new SoundFile(this, "token.wav");
   win_sound = new SoundFile(this, "win.wav");
@@ -749,6 +751,7 @@ void draw() {
     overlay_alpha += dt * 255 / 1.0;
     if (overlay_alpha > 255.0) {
       overlay_alpha = 255.0;
+      music.loop();
       loading_phase = WINNING_LOADING_PHASE;
     }
 
